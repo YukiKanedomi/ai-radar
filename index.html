@@ -2,9 +2,10 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>AI活用レーダー</title>
 <meta name="description" content="面白いAI活用ネタを、探しに行かなくても毎朝手元に。">
+<meta name="theme-color" content="#22242A">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@400;500;700;800;900&family=Inter:wght@500;700;800&display=swap" rel="stylesheet">
@@ -12,13 +13,26 @@
 </head>
 <body>
 <div class="wrap">
+  <header class="app-head">
+    <h1>AI活用レーダー<small>LIQUID MOSAIC</small></h1>
+    <p class="head-sub" id="head-sub"></p>
+  </header>
+
+  <nav class="app-nav" aria-label="主要ページ">
+    <button data-nav="today">今日</button>
+    <button data-nav="explore">探す</button>
+    <button data-nav="review">振り返る</button>
+    <button data-nav="trials">試してみた</button>
+  </nav>
+
   <main id="main" class="mosaic"><div class="t-empty tile">受信中…</div></main>
+
   <footer>AI活用レーダー — RADAR FAMILY No.3 · 面積＝深さ · 要約は収集時点の実ソースに基づく</footer>
 </div>
 
-<div class="overlay" id="overlay">
-  <div class="scrim" onclick="closeSheet()"></div>
-  <div class="sheet" id="sheet"></div>
+<div class="overlay" id="overlay" hidden>
+  <div class="scrim" id="scrim"></div>
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="記事"></div>
 </div>
 
 <script>

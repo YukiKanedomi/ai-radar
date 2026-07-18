@@ -32,7 +32,8 @@
 - `data/taste-profile.md` — 興味プロフィール（フィードバックで育つ）
 - `data/trials.json` — 「試してみた」の記録
 - `index.html` + `app.js` + `styles.css` — アプリ本体（ビルド不要の静的構成。壊れる部品を増やさない）
-  - デザインは「リキッド・モザイク」（2026-07-18 刷新・Codex壁打ち発案）: 号全体が1枚の不均等モザイク面、面積＝深さ、タップで液体拡大、ノイズ判定した面は彩度が下がる。サムネは `i.ytimg.com/vi/<videoId>/hqdefault.jpg`。QA用URLパラメータ: `?view=videos` `?open=deep:0` `?shot=1`（撮影時の幅固定）。
+  - デザインは「リキッド・モザイク」（2026-07-18 刷新・Codex壁打ち発案）: 号全体が1枚の不均等モザイク面、面積＝深さ、タップで液体拡大。同日に企業級の基礎整備（タイポ5段階・状態色の分離・44px操作系・シートのdialog化・safe-area）済み。サムネは `i.ytimg.com/vi/<videoId>/hqdefault.jpg`。
+  - IA（2026-07-18 刷新・Codex壁打ち）: 主ナビ「今日 / 探す / 振り返る / 試してみた」。過去号・全文検索（クライアント線形検索）・映像一覧は「探す」内。振り返るは週/月の実測集計。URLは `?view=issue&date=YYYY-MM-DD&item=d1` の日付＋安定ID方式（pushState、戻るボタンでシートが閉じる）。旧URL（latest/archive/videos）は互換リダイレクト。QA用: `?shot=1`（撮影時の幅固定）。
 - `scripts/daily-collect-prompt.txt` + `scripts/run-daily.ps1` — 毎朝の自動配信（Task Scheduler: AIRadarDaily）
 
 ## フィードバック運用
