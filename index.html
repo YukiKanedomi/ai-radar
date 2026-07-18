@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI活用レーダー</title>
+<meta name="description" content="面白いAI活用ネタを、探しに行かなくても毎朝手元に。">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="station"><span class="mark">RADAR-03</span></div>
+    <h1>AI活用レーダー</h1>
+    <div class="freq">SCANNING <b>Reddit · HN · Zenn · Qiita · GitHub</b> — 毎朝受信</div>
+    <div class="scanline"></div>
+  </header>
+
+  <nav>
+    <button id="tab-latest" class="on">最新号</button>
+    <button id="tab-archive">過去号</button>
+    <button id="tab-trials">試してみた</button>
+  </nav>
+
+  <main id="main"><div class="empty">受信中…</div></main>
+
+  <footer>AI活用レーダー — RADAR FAMILY No.3 · 要約は収集時点の実ソースに基づく</footer>
+</div>
+
+<div class="fbbar" id="fbbar">
+  <button id="fbcopy">📡 フィードバックをコピー（チャットに貼って学習させる）</button>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
