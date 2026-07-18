@@ -14,7 +14,7 @@ a{color:inherit;}
 button{font:inherit;cursor:pointer;}
 :focus-visible{outline:3px solid var(--cyan);outline-offset:2px;}
 
-.wrap{max-width:560px;margin:0 auto;padding:10px 10px 88px;}
+.wrap{max-width:560px;margin:0 auto;padding:10px 10px 40px;}
 
 /* ══ モザイク盤面 ══ */
 .mosaic{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;
@@ -80,14 +80,6 @@ button{font:inherit;cursor:pointer;}
 .t-sec .r{flex:1;height:1.5px;background:var(--line);}
 .t-sec .n{font-size:9.5px;font-weight:800;color:var(--sub);}
 
-/* フィードバック状態の表現 */
-.tile.fb-bad{filter:saturate(.25);opacity:.68;}
-.tile.fb-good::after{content:"";position:absolute;inset:0;border:3px solid var(--ink);border-radius:10px;pointer-events:none;}
-.t-deep.fb-good::after{border-color:rgba(255,255,255,.85);}
-.fbmark{position:absolute;right:8px;top:8px;font-size:8.5px;font-weight:900;letter-spacing:.08em;
-  padding:2px 7px;border-radius:999px;background:rgba(255,255,255,.9);color:var(--ink);}
-.t-log .fbmark,.t-video .fbmark{background:var(--ink);color:#fff;}
-
 /* ══ 記事オーバーレイ（液体拡大） ══ */
 .overlay{position:fixed;inset:0;z-index:30;display:none;}
 .overlay.show{display:block;}
@@ -115,13 +107,9 @@ button{font:inherit;cursor:pointer;}
 .sheet-body .src-link{display:inline-block;font-size:12.5px;font-weight:800;margin-top:6px;
   border-bottom:2px solid var(--ink);text-decoration:none;padding-bottom:1px;}
 .sheet-body .bigthumb{width:100%;aspect-ratio:16/9;border-radius:8px;object-fit:cover;display:block;margin-bottom:6px;}
-.sheet-body .vmeta{font-size:11px;font-weight:700;color:var(--sub);margin-bottom:8px;}
-.sheet .fb{display:flex;gap:8px;margin-top:16px;}
-.sheet .fb button{flex:1;border-radius:8px;padding:12px 0;font-weight:800;font-size:13px;border:none;}
-.sheet .fb .good{background:var(--ink);color:#fff;}
-.sheet .fb .good.on{background:var(--lime);color:var(--lime-ink);}
-.sheet .fb .bad{background:none;border:1.5px solid #B9BBC2;color:var(--sub);}
-.sheet .fb .bad.on{background:var(--char);border-color:var(--char);color:#fff;}
+.sheet-body .vmeta{font-size:11px;font-weight:700;color:var(--sub);margin-bottom:4px;}
+.sheet-body .basis{font-size:10.5px;font-weight:700;color:var(--sub);background:#E9E8E2;
+  border-radius:6px;padding:6px 10px;margin-bottom:8px;line-height:1.6;}
 
 /* ══ 映像室・試してみた・過去号 ══ */
 .t-vroom{grid-column:span 4;grid-row:span 4;background:#fff;border:1.5px solid var(--line);
@@ -143,14 +131,6 @@ button{font:inherit;cursor:pointer;}
 
 select.issue-sel{grid-column:span 4;background:#fff;color:var(--ink);border:1.5px solid var(--line);
   border-radius:10px;padding:10px 12px;font:inherit;font-size:12.5px;font-weight:700;width:100%;}
-
-/* ══ フィードバックバー ══ */
-.fbbar{position:fixed;left:0;right:0;bottom:0;background:rgba(242,241,236,.95);
-  border-top:1.5px solid var(--line);padding:10px 12px;backdrop-filter:blur(6px);display:none;z-index:20;}
-.fbbar.show{display:block;}
-.fbbar button{display:block;width:100%;max-width:560px;margin:0 auto;padding:13px;
-  background:var(--ink);color:var(--base);border:none;border-radius:10px;
-  font-size:13.5px;font-weight:800;letter-spacing:.04em;}
 
 footer{margin-top:26px;font-size:9.5px;color:var(--sub);text-align:center;letter-spacing:.1em;font-weight:700;}
 
