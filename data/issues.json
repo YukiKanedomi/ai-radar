@@ -101,6 +101,47 @@
      "apply": "静的な可視化ハブとは別系統の「生きた」共有パネルの選択肢として観測継続。"
     }
    ],
+   "videos": [
+    {
+     "id": "v1",
+     "genre": "エージェント技法",
+     "channel": "IndyDevDan",
+     "title": "FORGET Loop Engineering. Agentic Engineering is about THIS",
+     "titleJa": "「ループ設計」は忘れろ — エージェンティック・エンジニアリングの本丸",
+     "videoId": "VQy50fuxI34",
+     "url": "https://www.youtube.com/watch?v=VQy50fuxI34",
+     "publishedAt": "2026-07-13",
+     "views": 61762,
+     "note": "概要欄より: 流行語「ループエンジニアリング」を切り捨て、プロンプト投入→特定ワークフロー実行という「自分のソフトウェア工場」を組む話とのこと（未視聴・概要欄ベース）。",
+     "apply": "うちの配信群はまさに「工場」型。用語と設計の整理として今週の視聴候補。"
+    },
+    {
+     "id": "v2",
+     "genre": "新ツール",
+     "channel": "Cole Medin",
+     "title": "This Completely Changes the Way We Build Production AI Agents (Vercel Eve)",
+     "titleJa": "VercelがOSS化した新エージェント基盤「Eve」",
+     "videoId": "m8VC2SV2igM",
+     "url": "https://www.youtube.com/watch?v=m8VC2SV2igM",
+     "publishedAt": "2026-07-16",
+     "views": 25223,
+     "note": "概要欄より: 指示はMarkdown・ツールはTypeScript・スキルとサブエージェントは入れ子フォルダ、それをコンパイルして耐久サービスにする構成とのこと（未視聴・概要欄ベース）。",
+     "apply": "Claude Codeのスキル構造と同じ発想が他社基盤からも。エージェント設計の収斂として観測。"
+    },
+    {
+     "id": "v3",
+     "genre": "自動化×動画生成",
+     "channel": "Cole Medin",
+     "title": "I Turned Claude Code Into a Complete Video Generation System (with Archon)",
+     "titleJa": "Claude Codeを動画量産システムに変えた（Archon併用）",
+     "videoId": "deeOA6YVfqw",
+     "url": "https://www.youtube.com/watch?v=deeOA6YVfqw",
+     "publishedAt": "2026-07-12",
+     "views": 5814,
+     "note": "概要欄より: コーディング用の道具立て（Claude Code+Archon）を商品カタログからのマーケ動画量産に転用する実験とのこと（未視聴・概要欄ベース）。",
+     "apply": "「コード用の道具を非コード業務へ向ける」はうちの路線そのもの。動画生成パイプラインの実装例として「試してみた」候補。"
+    }
+   ],
    "afterword": "創刊号でした。5つの受信源から138候補、そこから8本。初日の空は「2エージェント分業」の話題が妙に強く、偶然ですが編集部でも同じ構想を進めていた日だったので、電波の重なりに少し驚きました。感度良好／ノイズのボタンで教えてもらえると、選定眼が育ちます。"
   }
  ]

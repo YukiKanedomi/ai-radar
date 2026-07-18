@@ -5,32 +5,33 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI活用レーダー</title>
 <meta name="description" content="面白いAI活用ネタを、探しに行かなくても毎朝手元に。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@400;500;700;800;900&family=Inter:wght@500;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <div class="wrap">
-  <header>
-    <div class="station"><span class="mark">RADAR-03</span></div>
-    <h1>AI活用レーダー</h1>
-    <div class="freq">SCANNING <b>Reddit · HN · Zenn · Qiita · GitHub</b> — 毎朝受信</div>
-    <div class="scanline"></div>
-  </header>
+  <main id="main" class="mosaic"><div class="t-empty tile">受信中…</div></main>
+  <footer>AI活用レーダー — RADAR FAMILY No.3 · 面積＝深さ · 要約は収集時点の実ソースに基づく</footer>
+</div>
 
-  <nav>
-    <button id="tab-latest" class="on">最新号</button>
-    <button id="tab-archive">過去号</button>
-    <button id="tab-trials">試してみた</button>
-  </nav>
-
-  <main id="main"><div class="empty">受信中…</div></main>
-
-  <footer>AI活用レーダー — RADAR FAMILY No.3 · 要約は収集時点の実ソースに基づく</footer>
+<div class="overlay" id="overlay">
+  <div class="scrim" onclick="closeSheet()"></div>
+  <div class="sheet" id="sheet"></div>
 </div>
 
 <div class="fbbar" id="fbbar">
-  <button id="fbcopy">📡 フィードバックをコピー（チャットに貼って学習させる）</button>
+  <button id="fbcopy">フィードバックをコピー（チャットに貼って学習させる）</button>
 </div>
 
+<script>
+// 撮影QA用（?shot=1 のときのみ幅を固定。通常表示には影響しない）
+if (location.search.includes("shot=1")) document.addEventListener("DOMContentLoaded", () => {
+  document.body.style.width = "390px";
+  document.querySelector(".wrap").style.margin = "0";
+});
+</script>
 <script src="app.js"></script>
 </body>
 </html>

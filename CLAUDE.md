@@ -6,7 +6,7 @@
 
 ## §0 このアプリの価値（3層構造）
 
-1. **収集** — 5源（Reddit / Hacker News / Zenn / Qiita / GitHub）を毎朝巡回。Xは自動収集の鬼門なので追わない（バズネタは数日でこれらの源に沈殿する）。
+1. **収集** — 6源（Reddit / Hacker News / Zenn / Qiita / GitHub / YouTube）を毎朝巡回。Xは自動収集の鬼門なので追わない（バズネタは数日でこれらの源に沈殿する）。
 2. **翻訳** — ここが差別化。各ネタを「面白い」で終わらせず、**うちのプロジェクト群のどこに効くか**まで引きつけて書く。上位3件（強電波）は適用案まで深掘り、残り（受信ログ）はひとことメモ。
 3. **検証** — 週1「試してみた」枠。気になるネタを実際に手を動かして検証し、当たりなら該当プロジェクトへ正式提案。
 
@@ -18,18 +18,20 @@
 
 ## 選定ルール
 
-- 1号8本 = 深掘り3本（強電波）+ ひとこと5本（受信ログ）。
+- 1号8本 = 深掘り3本（強電波）+ ひとこと5本（受信ログ）+ 映像2〜3本（videos配列・良候補がない日は空でよい）。
+- 映像は未視聴のまま載せるため、note は「概要欄より」（未視聴・概要欄ベース）の書き方を必須とする。LINE誘導・講座販売系の宣伝動画はノイズ。
 - `data/taste-profile.md` の興味ジャンルと過去のフィードバックに従う。ジャンルの偏り（全部コーディング等）を避け、号の中で2〜4ジャンル混ぜる。
 - 過去号との重複禁止（`data/issues.json` の既存URLと照合）。同一ツールの続報は「続報」と明記すれば可。
 - 候補が薄い日は本数を減らしてよい（水増しより誠実さ）。
 
 ## 構成
 
-- `scripts/collect.mjs` — 5源から候補収集 → `scripts/out/candidates-YYYY-MM-DD.json`（Node18+・依存なし）
+- `scripts/collect.mjs` — 6源から候補収集 → `scripts/out/candidates-YYYY-MM-DD.json`（Node18+・依存なし）
 - `data/issues.json` — 全号のデータ（アプリが読む正典）
 - `data/taste-profile.md` — 興味プロフィール（フィードバックで育つ）
 - `data/trials.json` — 「試してみた」の記録
 - `index.html` + `app.js` + `styles.css` — アプリ本体（ビルド不要の静的構成。壊れる部品を増やさない）
+  - デザインは「リキッド・モザイク」（2026-07-18 刷新・Codex壁打ち発案）: 号全体が1枚の不均等モザイク面、面積＝深さ、タップで液体拡大、ノイズ判定した面は彩度が下がる。サムネは `i.ytimg.com/vi/<videoId>/hqdefault.jpg`。QA用URLパラメータ: `?view=videos` `?open=deep:0` `?shot=1`（撮影時の幅固定）。
 - `scripts/daily-collect-prompt.txt` + `scripts/run-daily.ps1` — 毎朝の自動配信（Task Scheduler: AIRadarDaily）
 
 ## フィードバック運用
@@ -44,7 +46,8 @@
 - Zenn: トピックRSS（ai / claudecode / 生成ai）。48h以内。
 - Qiita: 公開API 認証なし60req/h。タグ 生成AI / ClaudeCode。48h以内。
 - GitHub: search API（未認証10req/min）。直近1週間作成 topic:ai スター30+。
-- 将来候補: YouTube（Data API・要キー or チャンネルRSS）、note（ユーザー/マガジン単位RSSのみ・横断は弱い→WebSearchで補完）、Gmailラベル投函（X人力回収）。
+- YouTube（2026-07-18 追加・チャンネルRSS方式）: `feeds/videos.xml?channel_id=UC...`。キー不要・視聴数入り。直近7日・#shorts除外。登録8ch（collect.mjs の YT_CHANNELS）。**チャンネル追加時の注意**: ハンドル推測は別チャンネルを掴む事故あり（Beyond Fireship・車チャンネル・猫チャンネルを掴んだ実績）。必ず `/@handle/videos` から channelId を取り、RSSのチャンネル名と最新動画を目視確認する。将来: Data APIキーを取得したらキーワード検索発見を追加（ハイブリッド方針・オーナー合意済み）。
+- 将来候補: note（ユーザー/マガジン単位RSSのみ・横断は弱い→WebSearchで補完）、Gmailラベル投函（X人力回収）。
 
 ## 連載構想（複数ページ化の種）
 

@@ -15,6 +15,19 @@ const ymd = (d) => d.toISOString().slice(0, 10);
 const REDDIT_SUBS = ["ClaudeAI", "ChatGPTCoding", "AI_Agents", "StableDiffusion"];
 const ZENN_TOPICS = ["ai", "claudecode", "%E7%94%9F%E6%88%90ai"]; // 生成ai
 const QIITA_TAGS = ["生成AI", "ClaudeCode"];
+// YouTube: チャンネルRSS方式（キー不要）。ID実在とRSS疎通は2026-07-18に検証済み。
+// 追加時は https://www.youtube.com/@handle/videos のHTMLから "channelId":"UC..." を取り、
+// feeds/videos.xml でチャンネル名と最新動画を必ず目視確認する（ハンドル推測は別チャンネルを掴む事故あり）。
+const YT_CHANNELS = [
+  { id: "UCsBjURrPoezykLs9EqgamOA", name: "Fireship" },            // 開発文化・新技術
+  { id: "UChpleBmo18P08aKCIgti38g", name: "Matt Wolfe" },          // AIツールニュース
+  { id: "UCIgnGlGkVRhd4qNFcEwLL4A", name: "AI Search" },           // ツール発掘
+  { id: "UCrXSVX9a1mj8l0CMLwKgMVw", name: "AI Jason" },            // エージェント実装
+  { id: "UC_x36zCEGilGpB1m-V4gmjg", name: "IndyDevDan" },          // Claude Code/agentic
+  { id: "UCMwVTLZIRRUyyVrkjDpn4pA", name: "Cole Medin" },          // エージェント/自動化
+  { id: "UCNJ1Ymd5yFuUPtn21xtRbbw", name: "AI Explained" },        // モデル動向解説
+  { id: "UCIAk415K5Z3GvKfwMbb5GWA", name: "ClaudeCodeチャンネル" }, // 日本語・Claude Code実務
+];
 
 async function jget(url, extraHeaders = {}) {
   const res = await fetch(url, { headers: { ...UA, ...extraHeaders } });
@@ -160,14 +173,49 @@ async function github() {
   return out;
 }
 
+// --- YouTube: チャンネルRSS（直近7日・視聴数つき） ---
+async function youtube() {
+  const out = [];
+  const cutoff = Date.now() - 7 * 24 * 3600 * 1000;
+  for (const ch of YT_CHANNELS) {
+    try {
+      const xml = await tget(`https://www.youtube.com/feeds/videos.xml?channel_id=${ch.id}`);
+      const blocks = xml.match(/<entry>[\s\S]*?<\/entry>/g) || [];
+      for (const b of blocks) {
+        const pick = (re) => { const m = b.match(re); return m ? m[1] : ""; };
+        const videoId = pick(/<yt:videoId>([^<]+)<\/yt:videoId>/);
+        const published = pick(/<published>([^<]+)<\/published>/);
+        if (!videoId || new Date(published).getTime() < cutoff) continue;
+        // Shorts除外の素朴な判定（タイトルの#shortsのみ。URL判定はRSSからは不可）
+        const title = pick(/<title>([^<]+)<\/title>/);
+        if (/#shorts/i.test(title)) continue;
+        out.push({
+          source: "YouTube",
+          channel: ch.name,
+          title,
+          url: `https://www.youtube.com/watch?v=${videoId}`,
+          videoId,
+          thumb: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
+          score: Number(pick(/views="(\d+)"/)) || null, // score=視聴数（収集時点）
+          comments: null,
+          publishedAt: published,
+          excerpt: pick(/<media:description>([\s\S]*?)<\/media:description>/).replace(/\s+/g, " ").trim().slice(0, 300),
+        });
+      }
+    } catch (e) { console.error(`[youtube:${ch.name}] ${e.message}`); }
+  }
+  return out;
+}
+
 // --- main ---
-const results = await Promise.all([reddit(), hackernews(), zenn(), qiita(), github()]);
+const results = await Promise.all([reddit(), hackernews(), zenn(), qiita(), github(), youtube()]);
 let all = results.flat();
 
 // URL重複除去
 const seen = new Set();
 all = all.filter((i) => {
-  const key = i.url.replace(/[?#].*$/, "").replace(/\/$/, "");
+  // YouTubeは ?v= が本体なのでvideoIdをキーにする（クエリ除去すると全動画が同一URLに潰れる）
+  const key = i.videoId ? `yt:${i.videoId}` : i.url.replace(/[?#].*$/, "").replace(/\/$/, "");
   if (seen.has(key)) return false;
   seen.add(key);
   return true;

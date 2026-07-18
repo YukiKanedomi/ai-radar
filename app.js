@@ -1,126 +1,264 @@
-// AI活用レーダー — フロント（ビルド不要・依存なし）
+// AI活用レーダー — リキッド・モザイク（ビルド不要・依存なし）
 let DATA = null, TRIALS = null;
+let view = "latest";          // latest | archive | videos | trials
 let currentIssue = null;
 const FB_KEY = "airadar-feedback";
 const fb = JSON.parse(localStorage.getItem(FB_KEY) || "{}"); // {"date/id": "good"|"bad"}
 
 const $ = (s) => document.querySelector(s);
 const esc = (s) => (s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+const PLAY = `<svg class="pl" viewBox="0 0 30 22"><rect width="30" height="22" rx="5" fill="#22242A" opacity=".88"/><path d="M12 6 L21 11 L12 16 Z" fill="#F2F1EC"/></svg>`;
+const DEEP_C = ["c0", "c1", "c2"];
+const EDGE_C = ["#C2266B", "#1D9EBF", "#8FBF2F", "#2E3138"];
+const fmtViews = (n) => n == null ? "" : `視聴 ${Number(n).toLocaleString("ja-JP")}`;
 
 async function boot() {
   try {
     DATA = await (await fetch("data/issues.json?t=" + Date.now())).json();
     try { TRIALS = await (await fetch("data/trials.json?t=" + Date.now())).json(); } catch { TRIALS = { trials: [] }; }
     currentIssue = DATA.meta.currentIssue;
-    showLatest();
+    const params = new URLSearchParams(location.search);
+    const vp = params.get("view");
+    if (["latest", "archive", "videos", "trials"].includes(vp)) view = vp;
+    render();
+    // QA用: ?open=deep:0 等でシートを直接開く
+    const op = params.get("open");
+    if (op) {
+      const [t, ix] = op.split(":");
+      const issue = issueByDate(DATA.meta.currentIssue);
+      const item = t === "deep" ? issue.deep[+ix] : t === "log" ? issue.log[+ix] : (issue.videos || [])[+ix];
+      if (item) openSheet(issue, item, t, t === "deep" ? DEEP_C[+ix % 3] : t === "log" ? "cl" : "cv", null);
+    }
   } catch (e) {
-    $("#main").innerHTML = `<div class="empty">受信失敗。時間をおいて再読み込みしてください。</div>`;
+    $("#main").innerHTML = `<div class="t-empty tile">受信失敗。時間をおいて再読み込みしてください。</div>`;
   }
 }
 
-function issueByDate(d) { return DATA.issues.find((i) => i.date === d); }
-
-function fbButtons(date, id) {
-  const k = `${date}/${id}`;
-  const v = fb[k] || "";
-  return `<div class="fb">
-    <button class="${v === "good" ? "good" : ""}" onclick="setFb('${k}','good')">感度良好</button>
-    <button class="${v === "bad" ? "bad" : ""}" onclick="setFb('${k}','bad')">ノイズ</button>
-  </div>`;
-}
-
-window.setFb = (k, v) => {
-  fb[k] = fb[k] === v ? "" : v;
-  localStorage.setItem(FB_KEY, JSON.stringify(fb));
-  render();
-  updateFbBar();
+const issueByDate = (d) => DATA.issues.find((i) => i.date === d);
+const fbState = (date, id) => fb[`${date}/${id}`] || "";
+const fbClass = (date, id) => ({ good: " fb-good", bad: " fb-bad" }[fbState(date, id)] || "");
+const fbMark = (date, id) => {
+  const v = fbState(date, id);
+  return v ? `<span class="fbmark">${v === "good" ? "良好" : "ノイズ"}</span>` : "";
 };
 
-function updateFbBar() {
-  const marked = Object.entries(fb).filter(([, v]) => v);
-  $("#fbbar").classList.toggle("show", marked.length > 0);
+/* ── ナビ ── */
+function navTiles() {
+  const t = (v, label) => `<button class="tile t-nav${view === v ? " on" : ""}" onclick="go('${v}')">${label}</button>`;
+  return t("latest", "最新号") + t("archive", "過去号") + t("videos", "映像室") + t("trials", "試した");
+}
+window.go = (v) => { view = v; if (v === "latest") currentIssue = DATA.meta.currentIssue; render(); };
+
+function headTile(sub) {
+  return `<div class="tile t-head">
+    <span class="name">AI活用レーダー<small>LIQUID MOSAIC</small></span>
+    <span class="d">${sub}</span>
+  </div>`;
 }
 
-function renderIssue(issue, withSelector) {
-  let h = "";
-  if (withSelector) {
-    h += `<select class="issue-sel" onchange="pickIssue(this.value)">` +
-      DATA.issues.map((i) => `<option value="${i.date}" ${i.date === issue.date ? "selected" : ""}>第${i.no}号 — ${i.date}</option>`).join("") +
-      `</select>`;
-  }
-  h += `<div class="issue-head">
-    <div class="issue-no">ISSUE No.${issue.no} — ${issue.date}</div>
-    <div class="headline">${esc(issue.headline)}</div>
-    <p class="intro">${esc(issue.intro)}</p>
-  </div>`;
+/* ── 号のモザイク ── */
+function issueMosaic(issue) {
+  const vids = issue.videos || [];
+  let h = headTile(`No.${issue.no} — ${esc(issue.date)}<br><b>深掘り${issue.deep.length} · 短信${issue.log.length} · 映像${vids.length}</b>`);
+  h += navTiles();
+  h += `<div class="tile t-intro"><div class="hl">${esc(issue.headline)}</div><div class="in">${esc(issue.intro)}</div></div>`;
 
-  h += `<div class="seclabel"><span class="t">強電波</span><span class="rule"></span><span class="n">DEEP ×${issue.deep.length}</span></div>`;
-  for (const d of issue.deep) {
-    h += `<article class="deep">
-      <div class="meta-row"><span class="genre">${esc(d.genre)}</span><span class="src">${esc(d.source)}</span>${d.stat ? `<span class="stat">${esc(d.stat)}</span>` : ""}</div>
-      <h3><a href="${esc(d.url)}" target="_blank" rel="noopener">${esc(d.titleJa || d.title)}</a></h3>
-      ${d.titleJa ? `<p class="orig">${esc(d.title)}</p>` : ""}
-      <p>${esc(d.summary)}</p>
-      ${d.why ? `<span class="blocklabel">なぜ面白いか</span><p>${esc(d.why)}</p>` : ""}
-      ${d.apply ? `<span class="blocklabel">うちへの適用（仮説）</span><div class="apply">${esc(d.apply)}</div>` : ""}
-      ${fbButtons(issue.date, d.id)}
-    </article>`;
-  }
+  issue.deep.forEach((d, i) => {
+    h += `<button class="tile t-deep ${DEEP_C[i % 3]}${fbClass(issue.date, d.id)}" onclick="openItem('deep',${i})">
+      ${fbMark(issue.date, d.id)}
+      <span class="tag">深掘り · ${esc(d.genre)} · ${esc(d.source)}</span>
+      <h2>${esc(d.titleJa || d.title)}</h2>
+      <span class="foot">タップで拡大 →</span>
+    </button>`;
+  });
 
-  h += `<div class="seclabel"><span class="t">受信ログ</span><span class="rule"></span><span class="n">LOG ×${issue.log.length}</span></div>`;
-  for (const l of issue.log) {
-    h += `<article class="log">
-      <div class="meta-row"><span class="genre">${esc(l.genre)}</span><span class="src">${esc(l.source)}</span>${l.stat ? `<span class="stat">${esc(l.stat)}</span>` : ""}</div>
-      <h4><a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.titleJa || l.title)}</a></h4>
-      ${l.titleJa ? `<p class="orig">${esc(l.title)}</p>` : ""}
-      <p class="note">${esc(l.note)}</p>
-      ${l.apply ? `<p class="hitokoto"><b>▸</b> ${esc(l.apply)}</p>` : ""}
-      ${fbButtons(issue.date, l.id)}
-    </article>`;
+  issue.log.forEach((l, i) => {
+    h += `<button class="tile t-log${fbClass(issue.date, l.id)}" onclick="openItem('log',${i})">
+      <i class="edge" style="background:${EDGE_C[i % 4]}"></i>
+      ${fbMark(issue.date, l.id)}
+      <span class="tag">${esc(l.genre)} · ${esc(l.source)}</span>
+      <h3>${esc(l.titleJa || l.title)}</h3>
+    </button>`;
+  });
+
+  if (vids.length) {
+    h += `<div class="tile t-sec"><span class="s">映像</span><span class="r"></span><span class="n">チャンネルRSSから受信</span></div>`;
+    vids.forEach((v, i) => {
+      h += `<button class="tile t-video${fbClass(issue.date, v.id)}" onclick="openItem('video',${i})">
+        <i class="edge"></i>
+        ${fbMark(issue.date, v.id)}
+        <span class="vthumb"><img src="https://i.ytimg.com/vi/${esc(v.videoId)}/hqdefault.jpg" alt="" loading="lazy" onerror="this.remove()">${PLAY}</span>
+        <h3>${esc(v.titleJa || v.title)}</h3>
+        <span class="vm">${esc(v.channel)} · ${fmtViews(v.views)}</span>
+      </button>`;
+    });
   }
 
   if (issue.afterword) {
-    h += `<div class="afterword">${esc(issue.afterword)}<div class="sig">— 受信担当より</div></div>`;
+    h += `<div class="tile t-after"><span class="tag">後記</span><p>${esc(issue.afterword)}</p></div>`;
+  }
+  h += `<div class="tile t-strip"><span class="s">面積＝深さ · ノイズ判定した面は彩度が下がる</span></div>`;
+  return h;
+}
+
+/* ── 映像室 ── */
+function videosMosaic() {
+  let h = headTile(`映像室<br><b>チャンネルRSSで毎朝受信</b>`);
+  h += navTiles();
+  const all = [];
+  for (const issue of DATA.issues) for (const v of (issue.videos || [])) all.push({ ...v, date: issue.date, no: issue.no });
+  all.sort((a, b) => b.date.localeCompare(a.date) || (b.publishedAt || "").localeCompare(a.publishedAt || ""));
+  if (!all.length) {
+    h += `<div class="tile t-empty">まだ映像の受信はありません。</div>`;
+    return h;
+  }
+  let lastDate = "";
+  all.forEach((v) => {
+    if (v.date !== lastDate) {
+      lastDate = v.date;
+      h += `<div class="tile t-sec"><span class="s">第${v.no}号</span><span class="r"></span><span class="n">${esc(v.date)}</span></div>`;
+    }
+    h += `<button class="tile t-vroom${fbClass(v.date, v.id)}" onclick="openVideoFrom('${esc(v.date)}','${esc(v.id)}')">
+      ${fbMark(v.date, v.id)}
+      <span class="vthumb"><img src="https://i.ytimg.com/vi/${esc(v.videoId)}/hqdefault.jpg" alt="" loading="lazy" onerror="this.remove()">${PLAY}</span>
+      <span class="vbody">
+        <h3>${esc(v.titleJa || v.title)}</h3>
+        <span class="vm">${esc(v.channel)} · ${fmtViews(v.views)} · ${esc(v.publishedAt || "")}</span>
+        <span class="note">${esc(v.note)}</span>
+      </span>
+    </button>`;
+  });
+  return h;
+}
+
+/* ── 試してみた ── */
+function trialsMosaic() {
+  let h = headTile(`試してみた<br><b>週1の検証枠</b>`);
+  h += navTiles();
+  if (!TRIALS.trials.length) {
+    h += `<div class="tile t-empty">「試してみた」第1回は準備中です。<br>気になった面に感度良好を付けると検証候補になります。</div>`;
+    return h;
+  }
+  for (const t of TRIALS.trials) {
+    h += `<div class="tile t-trial">
+      <span class="tag"><span class="verdict ${t.verdict === "当たり" ? "hit" : "miss"}">${esc(t.verdict)}</span> · ${esc(t.date)}</span>
+      <h3>${esc(t.title)}</h3>
+      <p style="font-size:12px;margin:6px 0 0;">${esc(t.report)}</p>
+      ${t.proposal ? `<p style="font-size:12px;margin:6px 0 0;"><b>提案:</b> ${esc(t.proposal)}</p>` : ""}
+    </div>`;
   }
   return h;
 }
 
-window.pickIssue = (d) => { currentIssue = d; render(); };
-
-let view = "latest";
-function showLatest() { view = "latest"; currentIssue = DATA.meta.currentIssue; render(); }
-function showArchive() { view = "archive"; render(); }
-function showTrials() { view = "trials"; render(); }
-
+/* ── render ── */
 function render() {
-  ["latest", "archive", "trials"].forEach((t) => $("#tab-" + t).classList.toggle("on",
-    (view === t)));
   const m = $("#main");
   if (view === "latest") {
-    m.innerHTML = renderIssue(issueByDate(DATA.meta.currentIssue), false);
+    m.innerHTML = issueMosaic(issueByDate(DATA.meta.currentIssue));
   } else if (view === "archive") {
-    m.innerHTML = DATA.issues.length > 1 || view === "archive"
-      ? renderIssue(issueByDate(currentIssue) || issueByDate(DATA.meta.currentIssue), true)
-      : `<div class="empty">まだ過去号はありません。</div>`;
+    const issue = issueByDate(currentIssue) || issueByDate(DATA.meta.currentIssue);
+    let h = `<select class="issue-sel" onchange="pickIssue(this.value)">` +
+      DATA.issues.map((i) => `<option value="${i.date}" ${i.date === issue.date ? "selected" : ""}>第${i.no}号 — ${i.date}「${esc(i.headline)}」</option>`).join("") +
+      `</select>`;
+    m.innerHTML = h + issueMosaic(issue);
+  } else if (view === "videos") {
+    m.innerHTML = videosMosaic();
   } else {
-    if (!TRIALS.trials.length) {
-      m.innerHTML = `<div class="empty">「試してみた」第1回は準備中です。<br>気になったネタに感度良好を付けると、検証候補になります。</div>`;
-    } else {
-      m.innerHTML = TRIALS.trials.map((t) => `<article class="trial">
-        <div class="meta-row"><span class="verdict ${t.verdict === "当たり" ? "hit" : "miss"}">${esc(t.verdict)}</span><span class="src">${esc(t.date)}</span></div>
-        <h3>${esc(t.title)}</h3>
-        <p>${esc(t.report)}</p>
-        ${t.proposal ? `<div class="apply"><b>提案:</b> ${esc(t.proposal)}</div>` : ""}
-      </article>`).join("");
-    }
+    m.innerHTML = trialsMosaic();
   }
   updateFbBar();
 }
+window.pickIssue = (d) => { currentIssue = d; render(); };
 
-$("#tab-latest").onclick = showLatest;
-$("#tab-archive").onclick = showArchive;
-$("#tab-trials").onclick = showTrials;
+/* ── オーバーレイ（液体拡大） ── */
+let sheetCtx = null; // {date, id}
+function viewIssue() { return view === "archive" ? (issueByDate(currentIssue) || issueByDate(DATA.meta.currentIssue)) : issueByDate(DATA.meta.currentIssue); }
 
+window.openItem = (type, idx) => {
+  const issue = viewIssue();
+  const item = type === "deep" ? issue.deep[idx] : type === "log" ? issue.log[idx] : issue.videos[idx];
+  const color = type === "deep" ? DEEP_C[idx % 3] : type === "log" ? "cl" : "cv";
+  openSheet(issue, item, type, color, event.currentTarget);
+};
+window.openVideoFrom = (date, id) => {
+  const issue = issueByDate(date);
+  const item = (issue.videos || []).find((v) => v.id === id);
+  if (item) openSheet(issue, item, "video", "cv", event.currentTarget);
+};
+
+function sheetHtml(issue, item, type, color) {
+  const tagLine = type === "deep" ? `深掘り · ${esc(item.genre)} · ${esc(item.source)}`
+    : type === "log" ? `短信 · ${esc(item.genre)} · ${esc(item.source)}`
+    : `映像 · ${esc(item.genre)} · ${esc(item.channel)}`;
+  let body = "";
+  if (type === "video") {
+    body += `<img class="bigthumb" src="https://i.ytimg.com/vi/${esc(item.videoId)}/hqdefault.jpg" alt="" onerror="this.remove()">
+      <div class="vmeta">${esc(item.channel)} · ${fmtViews(item.views)}（収集時点） · 公開 ${esc(item.publishedAt || "")}</div>`;
+  }
+  if (item.titleJa && item.title) body += `<p class="orig">${esc(item.title)}</p>`;
+  if (type === "deep") {
+    body += `<p>${esc(item.summary)}</p>`;
+    if (item.why) body += `<span class="lb">なぜ面白いか</span><p>${esc(item.why)}</p>`;
+  } else {
+    body += `<p>${esc(item.note)}</p>`;
+  }
+  if (item.apply) body += `<span class="lb">うちへの適用（仮説）</span><div class="apply ${color}">${esc(item.apply)}</div>`;
+  body += `<a class="src-link" href="${esc(item.url)}" target="_blank" rel="noopener">${type === "video" ? "YouTubeで観る" : "元記事を読む"} ↗</a>`;
+  const st = fbState(issue.date, item.id);
+  body += `<div class="fb">
+    <button class="good${st === "good" ? " on" : ""}" onclick="sheetFb('good')">感度良好</button>
+    <button class="bad${st === "bad" ? " on" : ""}" onclick="sheetFb('bad')">ノイズ</button>
+  </div>`;
+  return `<div class="sheet-head ${color}">
+      <div class="row">
+        <div><span class="tag">${tagLine}</span><h2>${esc(item.titleJa || item.title)}</h2></div>
+        <button class="close" onclick="closeSheet()" aria-label="閉じる">×</button>
+      </div>
+    </div>
+    <div class="sheet-body">${body}</div>`;
+}
+
+function openSheet(issue, item, type, color, tileEl) {
+  sheetCtx = { issue, item, type, color };
+  const ov = $("#overlay"), sh = $("#sheet");
+  sh.innerHTML = sheetHtml(issue, item, type, color);
+  ov.classList.add("show");
+  // 液体拡大: タイル矩形 → 全画面
+  if (tileEl && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    const r = tileEl.getBoundingClientRect();
+    const sx = r.width / innerWidth, sy = r.height / innerHeight;
+    sh.classList.remove("anim");
+    sh.style.transform = `translate(${r.left}px,${r.top}px) scale(${sx},${sy})`;
+    sh.style.borderRadius = "40px";
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      sh.classList.add("anim");
+      sh.style.transform = "none";
+      sh.style.borderRadius = "0";
+    }));
+  } else {
+    sh.style.transform = "none"; sh.style.borderRadius = "0";
+  }
+  document.body.style.overflow = "hidden";
+}
+window.closeSheet = () => {
+  $("#overlay").classList.remove("show");
+  document.body.style.overflow = "";
+  sheetCtx = null;
+};
+window.sheetFb = (v) => {
+  if (!sheetCtx) return;
+  const k = `${sheetCtx.issue.date}/${sheetCtx.item.id}`;
+  fb[k] = fb[k] === v ? "" : v;
+  localStorage.setItem(FB_KEY, JSON.stringify(fb));
+  $("#sheet").innerHTML = sheetHtml(sheetCtx.issue, sheetCtx.item, sheetCtx.type, sheetCtx.color);
+  render();
+};
+
+/* ── フィードバックバー ── */
+function updateFbBar() {
+  const marked = Object.entries(fb).filter(([, v]) => v);
+  $("#fbbar").classList.toggle("show", marked.length > 0);
+}
 $("#fbcopy").onclick = async () => {
   const lines = ["【AI活用レーダー フィードバック】"];
   for (const [k, v] of Object.entries(fb)) {
@@ -128,9 +266,10 @@ $("#fbcopy").onclick = async () => {
     const [date, id] = k.split("/");
     const issue = issueByDate(date);
     if (!issue) continue;
-    const item = [...issue.deep, ...issue.log].find((i) => i.id === id);
+    const item = [...issue.deep, ...issue.log, ...(issue.videos || [])].find((i) => i.id === id);
     if (!item) continue;
-    lines.push(`${v === "good" ? "◎感度良好" : "×ノイズ"}: ${item.titleJa || item.title}（${date}）`);
+    const kind = id.startsWith("v") ? "映像" : id.startsWith("d") ? "深掘り" : "短信";
+    lines.push(`${v === "good" ? "◎感度良好" : "×ノイズ"}: [${kind}] ${item.titleJa || item.title}（${date}）`);
   }
   const text = lines.join("\n");
   const btn = $("#fbcopy");
@@ -140,7 +279,7 @@ $("#fbcopy").onclick = async () => {
   } catch {
     prompt("コピーしてください:", text);
   }
-  setTimeout(() => { btn.textContent = "📡 フィードバックをコピー（チャットに貼って学習させる）"; }, 4000);
+  setTimeout(() => { btn.textContent = "フィードバックをコピー（チャットに貼って学習させる）"; }, 4000);
 };
 
 boot();
