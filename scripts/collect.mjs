@@ -13,8 +13,8 @@ const today = new Date();
 const ymd = (d) => d.toISOString().slice(0, 10);
 
 const REDDIT_SUBS = ["ClaudeAI", "ChatGPTCoding", "AI_Agents", "StableDiffusion"];
-const ZENN_TOPICS = ["ai", "claudecode", "%E7%94%9F%E6%88%90ai"]; // 生成ai
-const QIITA_TAGS = ["生成AI", "ClaudeCode"];
+const ZENN_TOPICS = ["ai", "claudecode", "%E7%94%9F%E6%88%90ai", "%E5%80%8B%E4%BA%BA%E9%96%8B%E7%99%BA"]; // 生成ai / 個人開発（作ってみた系の供給源・2026-08-09追加）
+const QIITA_QUERIES = ["tag:生成AI", "tag:ClaudeCode", "tag:個人開発 tag:生成AI"]; // AND検索可（2026-08-09 実測済み）
 // YouTube: チャンネルRSS方式（キー不要）。ID実在とRSS疎通は2026-07-18に検証済み。
 // 追加時は https://www.youtube.com/@handle/videos のHTMLから "channelId":"UC..." を取り、
 // feeds/videos.xml でチャンネル名と最新動画を必ず目視確認する（ハンドル推測は別チャンネルを掴む事故あり）。
@@ -128,9 +128,9 @@ async function zenn() {
 // --- Qiita: タグ別新着（公開API・認証なし60req/h） ---
 async function qiita() {
   const out = [];
-  for (const tag of QIITA_TAGS) {
+  for (const q of QIITA_QUERIES) {
     try {
-      const j = await jget(`https://qiita.com/api/v2/items?page=1&per_page=15&query=${encodeURIComponent("tag:" + tag)}`);
+      const j = await jget(`https://qiita.com/api/v2/items?page=1&per_page=15&query=${encodeURIComponent(q)}`);
       for (const a of j) {
         out.push({
           source: "Qiita",
@@ -142,7 +142,7 @@ async function qiita() {
           excerpt: (a.body || "").replace(/[#`\-\*\|]/g, "").slice(0, 300),
         });
       }
-    } catch (e) { console.error(`[qiita:${tag}] ${e.message}`); }
+    } catch (e) { console.error(`[qiita:${q}] ${e.message}`); }
   }
   const cutoff = Date.now() - 48 * 3600 * 1000;
   return out.filter((i) => new Date(i.publishedAt).getTime() > cutoff);
