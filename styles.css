@@ -171,10 +171,20 @@ button.tile:active{transform:scale(.985);}
 .t-list li b{font-weight:800;}
 .t-list li .n{color:var(--sub);font-weight:700;flex:none;}
 
-/* ══ 試してみた ══ */
-.t-trial{grid-column:span 4;grid-row:span 5;background:#fff;border:1.5px solid var(--line);}
-.t-trial .verdict{font-size:var(--fs-meta);font-weight:900;letter-spacing:.1em;}
-.t-trial .verdict.hit{color:var(--ok);} .t-trial .verdict.miss{color:var(--ng);}
+/* 週の読み物（日曜の自動実行が書く編集後記。高さは picks 数から app.js が算出） */
+.t-weekly{grid-column:span 4;background:var(--char);color:#D9DBE0;}
+.t-weekly .tag{color:#9EA3AE;}
+.t-weekly h3{font-size:var(--fs-card);color:#fff;margin-bottom:4px;}
+.t-weekly .pick{display:flex;flex-direction:column;text-align:left;background:rgba(255,255,255,.07);
+  border:none;border-radius:var(--r-s);padding:8px 10px;margin-top:6px;color:inherit;min-height:44px;}
+.t-weekly .pick b{font-size:var(--fs-sub);font-weight:800;color:#fff;line-height:1.5;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.t-weekly .pick span{font-size:var(--fs-meta);line-height:1.6;margin-top:2px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.t-weekly .trend{margin:10px 0 0;font-size:var(--fs-sub);line-height:1.8;
+  display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden;}
+.t-weekly-wait{grid-column:span 4;grid-row:span 2;background:none;justify-content:center;
+  color:var(--sub);font-size:var(--fs-meta);font-weight:700;padding:0 8px;}
 
 /* 号ビューの戻り帯 */
 .t-back{grid-column:span 4;grid-row:span 2;background:none;flex-direction:row;

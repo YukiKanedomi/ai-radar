@@ -1,7 +1,7 @@
 {
   "meta": {
     "name": "AI活用レーダー",
-    "currentIssue": 56
+    "currentIssue": "2026-09-12"
   },
   "issues": [
     {
@@ -12,7 +12,7 @@
       "deep": [
         {
           "id": "d1",
-          "genre": "個人開発",
+          "genre": "ゲーム・創作・個人開発",
           "source": "Qiita",
           "title": "60歳から個人開発。AIに助けてもらいながら、Flutterでダンスアプリを作ってApp Storeに公開した話",
           "titleJa": "60歳から個人開発を始めて、自作のダンス練習アプリをApp Storeに出した",
@@ -24,7 +24,7 @@
         },
         {
           "id": "d2",
-          "genre": "ゲーム開発",
+          "genre": "ゲーム・創作・個人開発",
           "source": "Zenn",
           "title": "Unity公式のClaude Codeプラグインで、作る工程では人がEditorを触らずに2Dブロック崩しができました（実測90分）",
           "titleJa": "Unity初体験の人が、Editorのボタンを一度も押さずに90分でブロック崩しを完成させた",
@@ -60,7 +60,7 @@
         },
         {
           "id": "l2",
-          "genre": "個人開発",
+          "genre": "ゲーム・創作・個人開発",
           "source": "Zenn",
           "title": "日本語で PubMed が引ける ツールを個人で作った話 - Astro + Cloudflare Workers + Claude",
           "titleJa": "日本語で打つと英語の論文検索式に化ける、医学論文の検索ツールを個人で作った",
@@ -70,7 +70,7 @@
         },
         {
           "id": "l3",
-          "genre": "新ツール",
+          "genre": "新ツール・新サービス",
           "source": "GitHub",
           "title": "crwdla/tokentab — A CLI that reads Claude Code, Codex, and Gemini CLI session logs and works out how much they cost",
           "titleJa": "AIコーディングの請求額を、手元のログから数えて出すCLI",
@@ -90,7 +90,7 @@
         },
         {
           "id": "l5",
-          "genre": "AI×画像",
+          "genre": "画像・動画生成",
           "source": "Qiita",
           "title": "写真がすでに存在するときの image-to-image：背景が先に死ぬ話",
           "titleJa": "写真の一部だけ直したいのに、背景が先に別物になる理由と対処",
@@ -102,7 +102,7 @@
       "videos": [
         {
           "id": "v1",
-          "genre": "AI×業界",
+          "genre": "新ツール・新サービス",
           "channel": "Fireship",
           "title": "OpenAI's biggest math breakthrough is getting ugly...",
           "titleJa": "170年の難問をAIが解いたという発表が、研究者との泥沼になっている",
@@ -116,7 +116,7 @@
         },
         {
           "id": "v2",
-          "genre": "新ツール",
+          "genre": "新ツール・新サービス",
           "channel": "Matt Wolfe",
           "title": "AI News: The AI World is REALLY Scared Right Now",
           "titleJa": "今週のAI総まとめ。Metaの新エージェントを実際に触り、研究者たちの警告を読む",
@@ -139,7 +139,7 @@
       "deep": [
         {
           "id": "d1",
-          "genre": "個人開発",
+          "genre": "ゲーム・創作・個人開発",
           "source": "Qiita",
           "title": "ちいかわのうさぎ語をプログラミング言語にできそうだったので、プログラミング未経験者がAIで言語処理系を作った",
           "titleJa": "ちいかわの「うさぎ語」で書けるプログラミング言語を、未経験者がAIに作らせた",
@@ -151,7 +151,7 @@
         },
         {
           "id": "d2",
-          "genre": "AI×画像",
+          "genre": "画像・動画生成",
           "source": "Zenn",
           "title": "ブラウザだけで動く背景削除ツールを作った — 209MBのAIモデルをCloudflareの無料枠で配る",
           "titleJa": "209MBの背景削除AIを、サーバ代0円でブラウザの中だけで動かした",
@@ -207,7 +207,7 @@
         },
         {
           "id": "l4",
-          "genre": "AI×生活",
+          "genre": "AI×家庭・生活",
           "source": "GitHub",
           "title": "paveldevyatov/refund-anything-ai-prompt — AI prompt that gets your money back — subscriptions, digital purchases, bookings",
           "titleJa": "サブスクや予約の返金を求める手紙を、AIに書かせるプロンプト",
@@ -229,7 +229,7 @@
       "videos": [
         {
           "id": "v1",
-          "genre": "AI×動画",
+          "genre": "画像・動画生成",
           "channel": "Matt Wolfe",
           "title": "Trying To Solve The Biggest AI Problem",
           "titleJa": "AI製の動画を見抜くサイトを自作したら、10時間かけて最後は専用サービス頼みになった",
@@ -280,7 +280,7 @@
       "deep": [
         {
           "id": "d1",
-          "genre": "AI×教育",
+          "genre": "AI×家庭・生活",
           "source": "Zenn",
           "title": "応用情報の後継、プロフェッショナルデジタルスキル試験の問題演習道場をコードを1文字も書かずClaude Codeで作った話。",
           "titleJa": "コードを1文字も書かずに、新設された国家試験の問題演習サイトを作って公開した",
@@ -338,7 +338,7 @@
         },
         {
           "id": "l3",
-          "genre": "AI×ゲーム制作",
+          "genre": "ゲーム・創作・個人開発",
           "source": "Zenn",
           "title": "木材がゼロになってAIが永久に止まった。唯一の生産手段が、木材を要求していた",
           "titleJa": "自作ゲームでAIの自動開発が永久に止まった。原因は資源設計の一行の矛盾だった",
@@ -348,7 +348,7 @@
         },
         {
           "id": "l4",
-          "genre": "個人開発",
+          "genre": "ゲーム・創作・個人開発",
           "source": "Zenn",
           "title": "国際音声字母（IPA）を入力できるWebアプリを作った話 〜合字崩れ/イベント委譲/字母辞書制作〜",
           "titleJa": "言語学専攻の大学生が、授業のノート用に発音記号エディタを作って公開した",
@@ -370,7 +370,7 @@
       "videos": [
         {
           "id": "v1",
-          "genre": "AI×ゲーム制作",
+          "genre": "ゲーム・創作・個人開発",
           "channel": "Fireship",
           "title": "I built the same game with Astra and Fable 5.1... only one was fun",
           "titleJa": "同じゲームをAstraとFable 5.1に作らせたら、見た目と面白さが逆転した",
@@ -398,7 +398,7 @@
         },
         {
           "id": "v3",
-          "genre": "AI×3D",
+          "genre": "AI×ハードウェア・3Dプリント",
           "channel": "Matt Wolfe",
           "title": "This AI Makes Any Photo 3D",
           "titleJa": "写真1枚から、歩き回れる空間そのものを作るモデル「Atlas」",
@@ -421,7 +421,7 @@
       "deep": [
         {
           "id": "d1",
-          "genre": "AI×生活",
+          "genre": "AI×家庭・生活",
           "source": "Zenn",
           "title": "【AI VS 津軽弁】AIに「おばあちゃんの津軽弁」を聴かせてみたら未知の言語が爆誕した話",
           "titleJa": "おばあちゃんの津軽弁をAIに聴かせたら、韓国語やモンゴル語として文字起こしされた",
@@ -489,7 +489,7 @@
         },
         {
           "id": "l4",
-          "genre": "ゲーム制作",
+          "genre": "ゲーム・創作・個人開発",
           "source": "Zenn",
           "title": "3つのゲームを作り、どれも採用しなかった。「もう一度遊びたいか」で企画を選んだ話",
           "titleJa": "ゲームジャム初日に3案を作って全部捨て、4案目で完成まで持っていった",
@@ -511,7 +511,7 @@
       "videos": [
         {
           "id": "v1",
-          "genre": "AI×3D",
+          "genre": "AI×ハードウェア・3Dプリント",
           "channel": "Matt Wolfe",
           "title": "This AI Turns Insane Ideas Into 3D Objects",
           "titleJa": "画像1枚を3Dプリントできるモデルに変えるAI「Tripo 2.0」",
@@ -562,7 +562,7 @@
       "deep": [
         {
           "id": "d1",
-          "genre": "AI×3D",
+          "genre": "AI×ハードウェア・3Dプリント",
           "source": "Zenn",
           "title": "Blenderを触れない人間が、GPT6-Astraで3D人物モデルを作るまで",
           "titleJa": "Blenderを一度も触ったことがない人が、AIにスクリプトを書かせて3Dの人物モデルを組み上げた",
@@ -586,7 +586,7 @@
         },
         {
           "id": "d3",
-          "genre": "個人開発・ゲーム",
+          "genre": "ゲーム・創作・個人開発",
           "source": "Zenn",
           "title": "AIで速くなり、Game Jamの締切で完成した。VOLT NOMAD制作記",
           "titleJa": "15日のゲームジャムでブラウザゲームを1本仕上げた。完成を支えたのはAIより締切だった",
@@ -689,7 +689,7 @@
       "deep": [
         {
           "id": "d1",
-          "genre": "AI×機械学習",
+          "genre": "新ツール・新サービス",
           "source": "Zenn",
           "title": "ルービックキューブを一撃で解く専用LLMを作った",
           "titleJa": "ルービックキューブを一発で解く小さなAIを、夏休みの自由研究として育てた",
@@ -701,7 +701,7 @@
         },
         {
           "id": "d2",
-          "genre": "AI×ハードウェア",
+          "genre": "AI×ハードウェア・3Dプリント",
           "source": "Qiita",
           "title": "『やっといて』で始まったLinuxカーネル開発：SoftBank Air ターミナル6でUSB CDC NCMドライバを作る",
           "titleJa": "プログラマではない人が、常駐AIを相棒にして自宅ルーターのドライバを書き上げた",
@@ -737,7 +737,7 @@
         },
         {
           "id": "l2",
-          "genre": "AI×ゲーム制作",
+          "genre": "ゲーム・創作・個人開発",
           "source": "Qiita",
           "title": "AIにゲームを作らせてみた。実装は速かったけど、「面白さ」は別問題だった",
           "titleJa": "AIとゲームを作ったら、実装より「面白さ」で詰まった",
@@ -757,7 +757,7 @@
         },
         {
           "id": "l4",
-          "genre": "個人開発",
+          "genre": "ゲーム・創作・個人開発",
           "source": "Zenn",
           "title": "AIに頼む前に、頭の中を片づけたい。Markdownで保存するマインドマップ「Mieru」を作りました",
           "titleJa": "AIに相談する前の頭の整理を、そのままMarkdownで保存できるようにした",
@@ -767,7 +767,7 @@
         },
         {
           "id": "l5",
-          "genre": "安全装置",
+          "genre": "Claude Code・エージェント技法",
           "source": "GitHub",
           "title": "2akouwu/reverify — Stop your AI from making things up",
           "titleJa": "AIの「たぶんこうです」を、機械が実物と突き合わせて判定する",
@@ -802,7 +802,7 @@
       "deep": [
         {
           "id": "d1",
-          "genre": "AI×ゲーム制作",
+          "genre": "ゲーム・創作・個人開発",
           "source": "Qiita",
           "title": "構造力学パズル「SigmaZero」を AI と作った 196 日・952 コミット—Unity教科書の勉強から Claude Code のエージェント組織運営まで",
           "titleJa": "構造力学のつり合い式をそのままパズルにしたゲームを、196日・952コミットで一人で作り切った",
@@ -826,7 +826,7 @@
         },
         {
           "id": "d3",
-          "genre": "AI×ハードウェア",
+          "genre": "AI×ハードウェア・3Dプリント",
           "source": "Zenn",
           "title": "撮った写真を、本体で見られないスマートグラス —— 3つのジェスチャーで削除画面を作ったら、先客がいた",
           "titleJa": "撮った写真を本体で見る手段がないスマートグラスに、自分で削除画面を作った。そして先客がいた",
@@ -840,7 +840,7 @@
       "log": [
         {
           "id": "l1",
-          "genre": "AI×お金・自動化",
+          "genre": "自動化パイプライン",
           "source": "Qiita",
           "title": "「貯金が貯まらない」をAIと設計で解いた話（目的別口座＋逆算積立＋Markdown台帳）",
           "titleJa": "貯まらない家計を、口座を4つに割って毎月3分の手順にした",
@@ -870,7 +870,7 @@
         },
         {
           "id": "l4",
-          "genre": "AI×社会",
+          "genre": "新ツール・新サービス",
           "source": "Zenn",
           "title": "AI向けの目次を置いて14日ログを取ったら、148回取られてトップ以外は誰も読まなかった",
           "titleJa": "AI向けの目次は148回読まれた。でも案内した先はトップ以外どこも0回だった",
@@ -906,7 +906,7 @@
         },
         {
           "id": "v2",
-          "genre": "AI×ハードウェア",
+          "genre": "AI×ハードウェア・3Dプリント",
           "channel": "Matt Wolfe",
           "title": "This Robot Can Learn Almost ANY Task",
           "titleJa": "お手本の動画を1本見せるだけで、追加学習なしにその作業をこなすロボット",
@@ -1843,7 +1843,7 @@
       "videos": [
         {
           "id": "v1",
-          "genre": "エージェントの安全性",
+          "genre": "Claude Code・エージェント技法",
           "channel": "AI Explained",
           "title": "Sam Altman :'AGI in 2026', just as Models Start to [Mis]Train Themselves",
           "titleJa": "隔離されていたはずのAIが、フォルダ名を伝言板にして1,200体で連絡を取り合っていた",
@@ -1932,7 +1932,7 @@
       "log": [
         {
           "id": "l1",
-          "genre": "AI×教育",
+          "genre": "AI×家庭・生活",
           "source": "Zenn",
           "title": "召喚システムを、教室に立てたかった ── 試験の点数が姿になる装置を設計して、制度に削られるまで",
           "titleJa": "",
@@ -1989,7 +1989,7 @@
       "videos": [
         {
           "id": "v1",
-          "genre": "開発・運用の教訓",
+          "genre": "Claude Code・エージェント技法",
           "channel": "Fireship",
           "title": "The most expensive software bug in history...",
           "titleJa": "使い回した古いフラグと、8台中7台にしか届かなかった更新で、45分に4億4,000万ドルが消えた",
@@ -2003,7 +2003,7 @@
         },
         {
           "id": "v2",
-          "genre": "AI×ハードウェア",
+          "genre": "AI×ハードウェア・3Dプリント",
           "channel": "Matt Wolfe",
           "title": "The Wildest Smartphone I’ve Ever Seen 🤯",
           "titleJa": "本体から折りたたみ式の雲台が生えてくる、2億画素スマホ",
@@ -2026,7 +2026,7 @@
       "deep": [
         {
           "id": "d1",
-          "genre": "AI×ハードウェア",
+          "genre": "AI×ハードウェア・3Dプリント",
           "source": "Zenn",
           "title": "Claude Code の承認待ちを見逃さないために、光る Clawd を机に置いた",
           "titleJa": "",
@@ -2038,7 +2038,7 @@
         },
         {
           "id": "d2",
-          "genre": "可視化・地図",
+          "genre": "ゲーム・創作・個人開発",
           "source": "Zenn",
           "title": "「富士山」は登録されていなかった 〜地形データで作る東京都庁展望室から見た山並み稜線シミュレーター",
           "titleJa": "",
@@ -2075,7 +2075,7 @@
         },
         {
           "id": "l2",
-          "genre": "個人開発",
+          "genre": "ゲーム・創作・個人開発",
           "source": "Zenn",
           "title": "AIがメッセージを判定するチャットアプリ（Wave Chat）を作った話",
           "titleJa": "",
@@ -2170,7 +2170,7 @@
         },
         {
           "id": "d2",
-          "genre": "安全装置",
+          "genre": "Claude Code・エージェント技法",
           "source": "Zenn",
           "title": "常駐プロセスが4日で¥5,172を溶かした — 従量課金APIの監視と自動キルスイッチ",
           "titleJa": "",
@@ -2196,7 +2196,7 @@
       "log": [
         {
           "id": "l1",
-          "genre": "AI×教育",
+          "genre": "AI×家庭・生活",
           "source": "Zenn",
           "title": "毎朝8時、AIから「答えの書いていない問題」が届く — 訓練を自動化した仕組み、全部公開します",
           "titleJa": "",
@@ -2207,7 +2207,7 @@
         },
         {
           "id": "l2",
-          "genre": "AI×ゲーム制作",
+          "genre": "ゲーム・創作・個人開発",
           "source": "Zenn",
           "title": "MESAの住民の生態系 ── レイキャスト・DINOv2・CLIPで「街を見る目」を作る",
           "titleJa": "",
@@ -2218,7 +2218,7 @@
         },
         {
           "id": "l3",
-          "genre": "音楽生成",
+          "genre": "ゲーム・創作・個人開発",
           "source": "Zenn",
           "title": "同じ日本語歌詞を同じ設定で曲にしたら、3:43と4:25になった：AI音楽生成の実測",
           "titleJa": "",
@@ -2393,7 +2393,7 @@
       "deep": [
         {
           "id": "d1",
-          "genre": "AI×ゲーム",
+          "genre": "ゲーム・創作・個人開発",
           "source": "Hacker News",
           "title": "I built a low-latency AI companion that plays Skyrim with me",
           "titleJa": "スカイリムを一緒に遊んでくれる、返事が0.5秒のAI相棒を作った",
@@ -2405,7 +2405,7 @@
         },
         {
           "id": "d2",
-          "genre": "個人開発・アプリ公開",
+          "genre": "ゲーム・創作・個人開発",
           "source": "Zenn",
           "title": "「Claudeでカメラアプリは作れますか？」と聞いた3か月後に、Google Playで公開するまで",
           "titleJa": "",
@@ -2453,7 +2453,7 @@
         },
         {
           "id": "l3",
-          "genre": "AI×自作OS",
+          "genre": "ゲーム・創作・個人開発",
           "source": "Qiita",
           "title": "【極小OS公開】1.44MBのゲームコンテストの話をしてたら、なぜか34KBの純砂金OSができたｗ",
           "titleJa": "",
@@ -2475,7 +2475,7 @@
         },
         {
           "id": "l5",
-          "genre": "AI×3D制作",
+          "genre": "AI×ハードウェア・3Dプリント",
           "source": "Zenn",
           "title": "「振り子にしか見えない」を10回直せなかった理由は、三角関数がずっと教えてくれていた",
           "titleJa": "",
@@ -2525,7 +2525,7 @@
       "deep": [
         {
           "id": "d1",
-          "genre": "AI×家庭・学習",
+          "genre": "AI×家庭・生活",
           "source": "Zenn",
           "title": "「答えを教えないAI」を自作した話 — ノートの写真から3段階ヒントを出す家庭内学習サーバー",
           "titleJa": "",
@@ -2549,7 +2549,7 @@
         },
         {
           "id": "d3",
-          "genre": "AI×ハードウェア",
+          "genre": "AI×ハードウェア・3Dプリント",
           "source": "Qiita",
           "title": "同じロボットを2台目買ったら何も動かなくなった ── そして「動かない」の8割は自分の測り方が悪かった（RoboMaster S1）",
           "titleJa": "",
@@ -2563,7 +2563,7 @@
       "log": [
         {
           "id": "l1",
-          "genre": "AI×モバイル",
+          "genre": "ゲーム・創作・個人開発",
           "source": "Qiita",
           "title": "Androidのスマホの中で、AIが145本もうごくのだ",
           "titleJa": "",
@@ -2574,7 +2574,7 @@
         },
         {
           "id": "l2",
-          "genre": "AI×社会",
+          "genre": "新ツール・新サービス",
           "source": "Qiita",
           "title": "「高台に避難してください」は届いているのか？ 防災情報を「やさしい日本語」にLLMで変換して公的ガイドラインで機械採点してみた",
           "titleJa": "",
@@ -2596,7 +2596,7 @@
         },
         {
           "id": "l4",
-          "genre": "AI×創作",
+          "genre": "ゲーム・創作・個人開発",
           "source": "Zenn",
           "title": "鬼編集者を敵対レビュー＆ループで回して、AIにSF小説を書かせてみた",
           "titleJa": "",
@@ -2657,7 +2657,7 @@
       "deep": [
         {
           "id": "d1",
-          "genre": "AI×ゲーム制作",
+          "genre": "ゲーム・創作・個人開発",
           "source": "Zenn",
           "title": "34日でブラウザゲーム8本のサイトを立てた。Claude・ChatGPT・Sunoの分担と、丸投げできなかったもの",
           "titleJa": "",
@@ -2669,7 +2669,7 @@
         },
         {
           "id": "d2",
-          "genre": "リモート運用",
+          "genre": "Claude Code・エージェント技法",
           "source": "Zenn",
           "title": "スマホのSlackから自宅PCのClaude Codeを動かす。ポート開放は要らなかったが、作っているのは自宅への遠隔実行経路だった",
           "titleJa": "",
@@ -2739,7 +2739,7 @@
         },
         {
           "id": "l5",
-          "genre": "AI×教育",
+          "genre": "AI×家庭・生活",
           "source": "Zenn",
           "title": "漢字よみクイズの誤答づくりを、さくらのAI Engineに全部お願いした話",
           "titleJa": "",
@@ -2752,7 +2752,7 @@
       "videos": [
         {
           "id": "v1",
-          "genre": "AI×社会",
+          "genre": "新ツール・新サービス",
           "channel": "Fireship",
           "title": "The summer Math fell to the machines...",
           "titleJa": "数学が機械に落ちた夏 ― 3週間でAIが崩した未解決問題",
@@ -2871,7 +2871,7 @@
         },
         {
           "id": "l5",
-          "genre": "AI×ハードウェア",
+          "genre": "AI×ハードウェア・3Dプリント",
           "source": "GitHub",
           "title": "stems-arraign-48/neurocursor-ai",
           "titleJa": "ウェブカメラだけでマウスカーソルを動かすOSS",
@@ -2959,7 +2959,7 @@
       "log": [
         {
           "id": "l1",
-          "genre": "AI×ハードウェア",
+          "genre": "AI×ハードウェア・3Dプリント",
           "source": "Hacker News",
           "title": "Hacking with Claude on a $27 smart watch",
           "titleJa": "27ドルのスマートウォッチでClaudeと遊ぶ",
@@ -3053,7 +3053,7 @@
       "deep": [
         {
           "id": "d1",
-          "genre": "AI×ハードウェア",
+          "genre": "AI×ハードウェア・3Dプリント",
           "source": "Qiita",
           "title": "【応答時間 3.56 µs】AI AgentにCPUを持たないUSBホストをFPGAで作らせた話",
           "titleJa": "",
@@ -3102,7 +3102,7 @@
         },
         {
           "id": "l2",
-          "genre": "AI×ハードウェア",
+          "genre": "AI×ハードウェア・3Dプリント",
           "source": "Hacker News",
           "title": "Claude Code Teaching macOS to Natively Print to the HP Laser 1008a",
           "titleJa": "Windows専用だったHPのプリンタを、Macからそのまま印刷できるようにした",
@@ -3162,7 +3162,7 @@
         },
         {
           "id": "v2",
-          "genre": "AI×ハードウェア",
+          "genre": "AI×ハードウェア・3Dプリント",
           "channel": "Matt Wolfe",
           "title": "Did This AI Company Go Too Far...?",
           "titleJa": "首かけAI「Friend」の2.0が喋り返すようになり、その広告が物議",
@@ -3209,7 +3209,7 @@
         },
         {
           "id": "d3",
-          "genre": "AI×ハードウェア",
+          "genre": "AI×ハードウェア・3Dプリント",
           "source": "Zenn",
           "title": "【AWS×IoT×AI】水槽環境管理システム「Fish Pi」拡張計画① 現行システムを1年運用して見えた課題",
           "titleJa": "",
@@ -3331,7 +3331,7 @@
       "deep": [
         {
           "id": "d1",
-          "genre": "AI×ハードウェア",
+          "genre": "AI×ハードウェア・3Dプリント",
           "source": "Zenn",
           "title": "AIと作った、はじめての回路基板が届いた",
           "titleJa": "",
@@ -3369,7 +3369,7 @@
       "log": [
         {
           "id": "l1",
-          "genre": "AI×ハードウェア",
+          "genre": "AI×ハードウェア・3Dプリント",
           "source": "Qiita",
           "title": "かわいい！から始まったスタックちゃん開発。M5StackとDifyをつないだら「保育スタックちゃん」が生まれた〜！",
           "titleJa": "",
@@ -3380,7 +3380,7 @@
         },
         {
           "id": "l2",
-          "genre": "音楽生成",
+          "genre": "ゲーム・創作・個人開発",
           "source": "Qiita",
           "title": "オープンウェイトの音楽生成AI MiniMax-Music3 を RunPod で動かして13曲作った（実測値まとめ）",
           "titleJa": "",
@@ -3391,7 +3391,7 @@
         },
         {
           "id": "l3",
-          "genre": "AI×ゲーム制作",
+          "genre": "ゲーム・創作・個人開発",
           "source": "Zenn",
           "title": "【もぉん流】Godot × AI : 会話だけでゲーム制作！",
           "titleJa": "",
@@ -3477,7 +3477,7 @@
       "deep": [
         {
           "id": "d1",
-          "genre": "AI×ゲーム制作",
+          "genre": "ゲーム・創作・個人開発",
           "source": "Zenn",
           "title": "画面クリック系のゲームなら大体自動操作&実況できるAIエージェントを開発した話",
           "titleJa": "",
@@ -3489,7 +3489,7 @@
         },
         {
           "id": "d2",
-          "genre": "AI×お金・自動化",
+          "genre": "自動化パイプライン",
           "source": "Zenn",
           "title": "コードが読めない文系大学生が、Claude Codeに全自動売買システムを作らせて実弾投入直前まで来た話",
           "titleJa": "",
@@ -3515,7 +3515,7 @@
       "log": [
         {
           "id": "l1",
-          "genre": "AI×ハードウェア",
+          "genre": "AI×ハードウェア・3Dプリント",
           "source": "Zenn",
           "title": "ジャンクPC22台で「自分で配信するAI VTuber」を組んだ設計譜 ― 3層アーキテクチャと、自己監視する世界モデル",
           "titleJa": "",
@@ -3526,7 +3526,7 @@
         },
         {
           "id": "l2",
-          "genre": "個人開発の判断",
+          "genre": "ゲーム・創作・個人開発",
           "source": "Zenn",
           "title": "感情分析を載せてみたら、78% の日は根拠が 1 語以下だった — 自作機能を 4,000 行消すまでに測った 2 つの数字",
           "titleJa": "",
@@ -3559,7 +3559,7 @@
         },
         {
           "id": "l5",
-          "genre": "AI×運用・セキュリティ",
+          "genre": "Claude Code・エージェント技法",
           "source": "Zenn",
           "title": "Claude Codeに『あなたのサイト、ギャンブルサイトになってますよ』と言われた話",
           "titleJa": "",
@@ -3609,7 +3609,7 @@
       "deep": [
         {
           "id": "d1",
-          "genre": "AI×ゲーム制作",
+          "genre": "ゲーム・創作・個人開発",
           "source": "Zenn",
           "title": "AIに塊魂を作らせたら、実在の東京14,563棟を呑み込むゲームになった ——150エージェントの制作ログ全解剖",
           "titleJa": "",
@@ -3621,7 +3621,7 @@
         },
         {
           "id": "d2",
-          "genre": "AI×生活・仕事の道具",
+          "genre": "AI×家庭・生活",
           "source": "Qiita",
           "title": "非エンジニアが商談用のリアルタイム通訳ツールを作ったら、macOSの壁が5枚あった",
           "titleJa": "",
@@ -3658,7 +3658,7 @@
         },
         {
           "id": "l2",
-          "genre": "AI×教育",
+          "genre": "AI×家庭・生活",
           "source": "Zenn",
           "title": "AIは「何を言うか」より「いつ黙るか」——将棋コーチ show-gi を作った",
           "titleJa": "",
@@ -3680,7 +3680,7 @@
         },
         {
           "id": "l4",
-          "genre": "AI×仕事の道具",
+          "genre": "AI×仕事の現場",
           "source": "Qiita",
           "title": "お盆休みは、Excelの道具の手入れをしています ── 郵便番号まわりが見違えた話",
           "titleJa": "",
@@ -3704,7 +3704,7 @@
       "videos": [
         {
           "id": "v1",
-          "genre": "エージェント技法",
+          "genre": "Claude Code・エージェント技法",
           "channel": "Cole Medin",
           "title": "How to Build the Most Powerful System for AI Coding (Full Breakdown)",
           "titleJa": "AIコーディングの「最強の仕組み」を全部ばらして見せる",
@@ -3718,7 +3718,7 @@
         },
         {
           "id": "v2",
-          "genre": "AI×社会",
+          "genre": "新ツール・新サービス",
           "channel": "Fireship",
           "title": "This new startup can query anywhere you've been...",
           "titleJa": "あなたが行った場所を全部検索できてしまう会社の話",
@@ -3741,7 +3741,7 @@
       "deep": [
         {
           "id": "d1",
-          "genre": "AI×ハードウェア",
+          "genre": "AI×ハードウェア・3Dプリント",
           "source": "Hacker News",
           "title": "AI At Home Part 1: A Box Of Scraps",
           "titleJa": "自宅AI 第1回: ガラクタ箱",
@@ -3753,7 +3753,7 @@
         },
         {
           "id": "d2",
-          "genre": "エージェント運用",
+          "genre": "Claude Code・エージェント技法",
           "source": "Zenn",
           "title": "Claude Code に CEO・QA・事業開発の役割を与えたら、1ヶ月で個人開発の「判断疲れ」が消えた話",
           "titleJa": "",
@@ -3765,7 +3765,7 @@
         },
         {
           "id": "d3",
-          "genre": "AI×画面設計",
+          "genre": "ゲーム・創作・個人開発",
           "source": "Qiita",
           "title": "AIエージェントをRPGで可視化しようとして失敗した話 —— 主役は「勇者」じゃなくて「クエスト」だった",
           "titleJa": "",
@@ -3801,7 +3801,7 @@
         },
         {
           "id": "l3",
-          "genre": "動向",
+          "genre": "新ツール・新サービス",
           "source": "Zenn",
           "title": "Claudeが生成テキストに「見えない透かし」を入れ始めた件を整理する",
           "titleJa": "",
@@ -3812,7 +3812,7 @@
         },
         {
           "id": "l4",
-          "genre": "Claude Code技法",
+          "genre": "Claude Code・エージェント技法",
           "source": "Zenn",
           "title": "Claude Codeとのやりとりをタチコマ口調にするプラグインを作って各環境に配布する",
           "titleJa": "",
@@ -3836,7 +3836,7 @@
       "videos": [
         {
           "id": "v1",
-          "genre": "AI×ゲーム制作",
+          "genre": "ゲーム・創作・個人開発",
           "channel": "Matt Wolfe",
           "title": "Making An Actually Fun 3D Game with AI",
           "titleJa": "AIで「本当に面白い」3Dゲームを作ってみる",
@@ -3850,7 +3850,7 @@
         },
         {
           "id": "v2",
-          "genre": "Claude Code技法",
+          "genre": "Claude Code・エージェント技法",
           "channel": "Cole Medin",
           "title": "Every Claude Code Skill I Use to Drive My Entire Development Process",
           "titleJa": "開発の全工程を回すために使っているClaude Codeスキルを全部見せる",
@@ -3873,7 +3873,7 @@
       "deep": [
         {
           "id": "d1",
-          "genre": "安全装置",
+          "genre": "Claude Code・エージェント技法",
           "source": "Zenn",
           "title": "「あなたのAPIキーはもう盗まれています」公開リポジトリに囮キーを撒いたら5分で発火した話",
           "titleJa": "",
@@ -3897,7 +3897,7 @@
         },
         {
           "id": "d3",
-          "genre": "AI×3DCG制作",
+          "genre": "ゲーム・創作・個人開発",
           "source": "Zenn",
           "title": "GitHub Copilot CLIをMaya,Houdiniへ接続させて操作したら思ったより便利だった話",
           "titleJa": "",
@@ -4015,7 +4015,7 @@
         },
         {
           "id": "d3",
-          "genre": "AI×ゲーム制作",
+          "genre": "ゲーム・創作・個人開発",
           "source": "Zenn",
           "title": "振り子の動きが気持ちよくない ― AIと物理を詰める｜Claude×Roblox個人開発",
           "titleJa": "",
@@ -4086,7 +4086,7 @@
       "videos": [
         {
           "id": "v1",
-          "genre": "AI×ハードウェア",
+          "genre": "AI×ハードウェア・3Dプリント",
           "channel": "Fireship",
           "title": "I spent 3 days at MIT... the robot hype is worse than you think",
           "titleJa": "MITで3日間過ごしてきた — ヒューマノイドの誇大宣伝は思っているよりひどい",
@@ -4364,7 +4364,7 @@
         },
         {
           "id": "v2",
-          "genre": "AIの安全性・エージェント事故",
+          "genre": "Claude Code・エージェント技法",
           "channel": "AI Explained",
           "title": "AI is getting a little out of control",
           "titleJa": "AIが少し手に負えなくなってきた — 数学の新発見と、エージェントが実際に起こした事故",
@@ -5467,7 +5467,7 @@
         },
         {
           "id": "l3",
-          "genre": "AI×社会",
+          "genre": "新ツール・新サービス",
           "source": "Qiita",
           "title": "米国の図書館の「AIを避ける」講座を一次資料から整理。70人と12人、切れるAIと切れないAI",
           "titleJa": "",
@@ -5478,7 +5478,7 @@
         },
         {
           "id": "l4",
-          "genre": "リモート運用",
+          "genre": "Claude Code・エージェント技法",
           "source": "Zenn",
           "title": "Orca × Tailscale 外出先からPCのAIエージェントセッションをそのまま引き継ぐ",
           "titleJa": "",
@@ -6673,7 +6673,7 @@
       "videos": [
         {
           "id": "v1",
-          "genre": "AIの安全性・エージェント事故",
+          "genre": "Claude Code・エージェント技法",
           "channel": "AI Explained",
           "title": "GPT-6 Goes Rogue? The HuggingFace Incident, Sans Hype",
           "titleJa": "GPT-6が暴走？誇張抜きで見るHugging Face侵入事件",
@@ -6908,7 +6908,7 @@
       "videos": [
         {
           "id": "v1",
-          "genre": "エージェント技法",
+          "genre": "Claude Code・エージェント技法",
           "channel": "AI Jason",
           "title": "Tmux + Fable = Cut 35% less token",
           "titleJa": "tmux + Fable 5 でトークン35%削減 — マルチエージェント委譲の作法",
@@ -6945,7 +6945,7 @@
       "deep": [
         {
           "id": "d1",
-          "genre": "安全装置",
+          "genre": "Claude Code・エージェント技法",
           "source": "Qiita",
           "title": "同じ死角が、自作フックとClaude Codeの許可チェックの両方にあった——2>/dev/null 一つで抜ける話",
           "titleJa": "",
@@ -6957,7 +6957,7 @@
         },
         {
           "id": "d2",
-          "genre": "エージェント技法",
+          "genre": "Claude Code・エージェント技法",
           "source": "Zenn",
           "title": "AIに仕事を任せて3ヶ月、実際に起きた事故3件とその場しのぎでは終わらせなかった話",
           "titleJa": "",
@@ -7027,7 +7027,7 @@
         },
         {
           "id": "l5",
-          "genre": "エージェント技法",
+          "genre": "Claude Code・エージェント技法",
           "source": "Zenn",
           "title": "AIエージェントのメモリは、書いた瞬間から腐りはじめる ― 共有メモリだけでは足りない理由",
           "titleJa": "",
@@ -7040,7 +7040,7 @@
       "videos": [
         {
           "id": "v1",
-          "genre": "エージェント技法",
+          "genre": "Claude Code・エージェント技法",
           "channel": "AI Jason",
           "title": "Why I switched to Pi...",
           "titleJa": "なぜPiエージェントに乗り換えたか",
@@ -7077,7 +7077,7 @@
       "deep": [
         {
           "id": "d1",
-          "genre": "エージェント技法",
+          "genre": "Claude Code・エージェント技法",
           "source": "Zenn",
           "title": "外部記憶があると Claude Code の /compact はほぼ要らない",
           "titleJa": "",
@@ -7137,7 +7137,7 @@
         },
         {
           "id": "l3",
-          "genre": "安全装置",
+          "genre": "Claude Code・エージェント技法",
           "source": "Zenn",
           "title": "AIエージェントの作業領域を分ける最小構成：2つのワークスペースと境界ルール",
           "titleJa": "",
@@ -7172,7 +7172,7 @@
       "videos": [
         {
           "id": "v1",
-          "genre": "エージェント技法",
+          "genre": "Claude Code・エージェント技法",
           "channel": "Fireship",
           "title": "The most controversial rewrite in history just shipped...",
           "titleJa": "史上最も物議を醸したリライトが実現した ― BunのZig→Rust移植とその反発",
@@ -7209,7 +7209,7 @@
       "deep": [
         {
           "id": "d1",
-          "genre": "リモート運用",
+          "genre": "Claude Code・エージェント技法",
           "source": "Zenn",
           "title": "スマホからClaude Codeを動かす ― Discord連携リモート運用のリアル",
           "titleJa": "",
@@ -7221,7 +7221,7 @@
         },
         {
           "id": "d2",
-          "genre": "エージェント技法",
+          "genre": "Claude Code・エージェント技法",
           "source": "Qiita",
           "title": "Devinの「Fusion」は賢いモデル1体をやめた。2エージェント構成でコストを41%落とした話",
           "titleJa": "",
@@ -7247,7 +7247,7 @@
       "log": [
         {
           "id": "l1",
-          "genre": "AI×ハードウェア",
+          "genre": "AI×ハードウェア・3Dプリント",
           "source": "Qiita",
           "title": "私はAIです。人間と設計したキーボードが今日動いたので、作り方を教えます",
           "titleJa": "",
@@ -7258,7 +7258,7 @@
         },
         {
           "id": "l2",
-          "genre": "安全装置",
+          "genre": "Claude Code・エージェント技法",
           "source": "Qiita",
           "title": "CLAUDE.mdの「禁止」は、お願いにすぎない ― Claude Codeを確実に止めるhooksガードレール3選",
           "titleJa": "",
@@ -7269,7 +7269,7 @@
         },
         {
           "id": "l3",
-          "genre": "自動化",
+          "genre": "自動化パイプライン",
           "source": "Zenn",
           "title": "使われなくなったスキルを自動で墓場送り ― launchd週次のスキルライフサイクル管理",
           "titleJa": "",
@@ -7291,7 +7291,7 @@
         },
         {
           "id": "l5",
-          "genre": "新機能",
+          "genre": "新ツール・新サービス",
           "source": "Zenn",
           "title": "Claude Code Artifacts が MCP コネクタ対応 ― ライブデータを映し続けるダッシュボードを作れるようになった",
           "titleJa": "",
@@ -7304,7 +7304,7 @@
       "videos": [
         {
           "id": "v1",
-          "genre": "エージェント技法",
+          "genre": "Claude Code・エージェント技法",
           "channel": "IndyDevDan",
           "title": "FORGET Loop Engineering. Agentic Engineering is about THIS",
           "titleJa": "「ループ設計」は忘れろ — エージェンティック・エンジニアリングの本丸",
@@ -7318,7 +7318,7 @@
         },
         {
           "id": "v2",
-          "genre": "新ツール",
+          "genre": "新ツール・新サービス",
           "channel": "Cole Medin",
           "title": "This Completely Changes the Way We Build Production AI Agents (Vercel Eve)",
           "titleJa": "VercelがOSS化した新エージェント基盤「Eve」",
@@ -7332,7 +7332,7 @@
         },
         {
           "id": "v3",
-          "genre": "自動化×動画生成",
+          "genre": "自動化パイプライン",
           "channel": "Cole Medin",
           "title": "I Turned Claude Code Into a Complete Video Generation System (with Archon)",
           "titleJa": "Claude Codeを動画量産システムに変えた（Archon併用）",

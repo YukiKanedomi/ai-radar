@@ -1,7 +1,7 @@
 // AI活用レーダー — リキッド・モザイク v2（ビルド不要・依存なし）
-// IA: 今日 / 探す（アーカイブ・検索・映像） / 振り返る（週・月） / 試してみた
+// IA: 今日 / 探す（アーカイブ・検索・映像） / 振り返る（週の読み物＋週・月の集計）
 // URL: ?view=issue&date=YYYY-MM-DD&item=d1 のように日付＋安定IDで状態を表す
-let DATA = null, TRIALS = null;
+let DATA = null, WEEKLY = null;
 
 const $ = (s) => document.querySelector(s);
 const esc = (s) => (s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -11,7 +11,7 @@ const fmtViews = (n) => n == null ? "" : `視聴 ${Number(n).toLocaleString("ja-
 const reduceMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /* ══ 状態とルーター ══ */
-const VIEWS = ["today", "explore", "review", "trials", "issue"];
+const VIEWS = ["today", "explore", "review", "issue"];
 let state = { view: "today", date: null, item: null, period: null, q: "", vf: "issues" };
 
 function parseState() {
@@ -21,6 +21,7 @@ function parseState() {
   if (view === "latest") view = "today";
   if (view === "archive") view = "explore";
   if (view === "videos") { view = "explore"; state.vf = "video"; }
+  if (view === "trials") view = "review"; // 2026-09-12 試してみたタブ撤去
   if (!VIEWS.includes(view)) view = "today";
   state = {
     view,
@@ -55,7 +56,7 @@ addEventListener("popstate", () => { parseState(); render(); });
 async function boot() {
   try {
     DATA = await (await fetch("data/issues.json")).json();
-    try { TRIALS = await (await fetch("data/trials.json")).json(); } catch { TRIALS = { trials: [] }; }
+    try { WEEKLY = await (await fetch("data/weekly.json")).json(); } catch { WEEKLY = { weeks: [] }; }
     parseState();
     history.replaceState({ hasItem: !!state.item }, "", buildQuery(state));
     render();
@@ -68,7 +69,9 @@ async function boot() {
 }
 
 const issueByDate = (d) => DATA.issues.find((i) => i.date === d);
-const currentIssue = () => issueByDate(DATA.meta.currentIssue);
+// meta.currentIssue は日付文字列が正だが、自動配信が号番号(数値)を書いた時期がある（2026-09-12 発覚: 今日/振り返るが落ちていた）。
+// どちらでも解決し、見つからなければ先頭の号にする。
+const currentIssue = () => DATA.issues.find((i) => i.date === DATA.meta.currentIssue || i.no === DATA.meta.currentIssue) || DATA.issues[0];
 
 function findItem(date, id) {
   const issue = issueByDate(date);
@@ -86,7 +89,7 @@ function findItem(date, id) {
 function render() {
   document.querySelectorAll(".app-nav button").forEach((b) => {
     const v = b.dataset.nav;
-    const on = state.view === v || (state.view === "issue" && (state.date === DATA.meta.currentIssue ? v === "today" : v === "explore"));
+    const on = state.view === v || (state.view === "issue" && (state.date === currentIssue().date ? v === "today" : v === "explore"));
     if (on) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
   });
   const m = $("#main");
@@ -111,11 +114,8 @@ function render() {
       });
       if (state.q) { inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); }
     }
-  } else if (state.view === "review") {
-    m.innerHTML = reviewView();
   } else {
-    setHeadSub(`週1の検証枠`);
-    m.innerHTML = trialsView();
+    m.innerHTML = reviewView();
   }
   syncSheet();
 }
@@ -232,18 +232,13 @@ function searchAll(q) {
     for (const v of (issue.videos || [])) if (hit(v.title, v.titleJa, v.summary, v.note, v.apply, v.genre, v.channel))
       out.push({ kind: "映像", date: issue.date, id: v.id, title: v.titleJa || v.title, sub: v.channel });
   }
-  for (const t of (TRIALS.trials || [])) if (hit(t.title, t.report, t.proposal))
-    out.push({ kind: "試した", date: t.date, id: null, title: t.title, sub: t.verdict || "" });
   return out;
 }
 function searchResults(q) {
   const rs = searchAll(q);
   if (!rs.length) return `<div class="tile t-empty">「${esc(q)}」に一致する受信はありません。</div>`;
   return rs.map((r) => {
-    const go = r.id
-      ? `openItemFromSearch('${esc(r.date)}','${esc(r.id)}',this)`
-      : `navigate({view:'trials',item:null,q:''})`;
-    return `<button class="tile t-result" onclick="${go}">
+    return `<button class="tile t-result" onclick="openItemFromSearch('${esc(r.date)}','${esc(r.id)}',this)">
       <span class="meta"><span class="kind">${r.kind}</span>${esc(r.date)}${r.sub ? " · " + esc(r.sub) : ""}</span>
       <h3 class="clamp2">${esc(r.title)}</h3>
     </button>`;
@@ -283,19 +278,23 @@ function reviewView() {
   for (const it of items) genres[it.genre] = (genres[it.genre] || 0) + 1;
   const sources = {};
   for (const it of items) { const s = (it.source || "").split(" ")[0]; sources[s] = (sources[s] || 0) + 1; }
-  const trials = (TRIALS.trials || []).filter((t) => periodOf(t.date, mode) === cur);
+  // 週の読み物: 日曜の自動実行が data/weekly.json に書く。週は to（日曜）の属する週・月で引く
+  const weeklies = (WEEKLY.weeks || []).filter((w) => w.to && periodOf(w.to, mode) === cur);
 
   let h = `<div class="tile chips" role="group" aria-label="期間の単位">
-      <button aria-pressed="${mode === "week"}" onclick="navigate({period:'${esc(periodOf(DATA.meta.currentIssue, "week"))}'},{push:false})">週</button>
-      <button aria-pressed="${mode === "month"}" onclick="navigate({period:'${esc(periodOf(DATA.meta.currentIssue, "month"))}'},{push:false})">月</button>
+      <button aria-pressed="${mode === "week"}" onclick="navigate({period:'${esc(periodOf(currentIssue().date, "week"))}'},{push:false})">週</button>
+      <button aria-pressed="${mode === "month"}" onclick="navigate({period:'${esc(periodOf(currentIssue().date, "month"))}'},{push:false})">月</button>
     </div>
     <div class="tile period-nav">
       <button class="pn" ${idx >= periods.length - 1 ? "disabled" : ""} onclick="navigate({period:'${esc(periods[idx + 1] || cur)}'},{push:false})" aria-label="前の期間">←</button>
       <span class="label">${esc(periodLabel(cur))}</span>
       <button class="pn" ${idx <= 0 ? "disabled" : ""} onclick="navigate({period:'${esc(periods[idx - 1] || cur)}'},{push:false})" aria-label="次の期間">→</button>
     </div>
-    <div class="tile t-stat"><span class="num">${issues.length}</span><span class="lb">発行号</span><span class="foot">記事${items.length} · 映像${vids.length}</span></div>
-    <div class="tile t-stat"><span class="num">${trials.length}</span><span class="lb">試してみた</span><span class="foot">${trials.length ? "" : "この期間は未実施"}</span></div>`;
+    </div>`;
+  if (weeklies.length) h += weeklies.map(weeklyTile).join("");
+  else if (mode === "week" && idx === 0) h += `<div class="tile t-weekly-wait">週の読み物は日曜の朝に届きます</div>`;
+  h += `<div class="tile t-stat"><span class="num">${issues.length}</span><span class="lb">発行号</span><span class="foot">記事${items.length}本</span></div>
+    <div class="tile t-stat"><span class="num">${vids.length}</span><span class="lb">映像</span><span class="foot">字幕全文を読んで要約</span></div>`;
 
   const genreRows = Object.entries(genres).sort((a, b) => b[1] - a[1]);
   h += `<div class="tile t-list rows6"><span class="tag">ジャンルの電波（実受信数）</span><ul>` +
@@ -312,27 +311,18 @@ function reviewView() {
       <h3 class="clamp2">${esc(i.headline)}</h3>
     </button>`;
   }
-  if (trials.length) {
-    h += `<div class="tile t-sec"><span class="s">この期間の検証</span><span class="r"></span></div>` +
-      trials.map((t) => trialTile(t)).join("");
-  }
   return h;
 }
-
-/* ── 試してみた ── */
-function trialTile(t) {
-  return `<div class="tile t-trial">
-    <span class="tag"><span class="verdict ${t.verdict === "当たり" ? "hit" : "miss"}">${esc(t.verdict)}</span> · ${esc(t.date)}</span>
-    <h3>${esc(t.title)}</h3>
-    <p style="font-size:var(--fs-sub);margin:8px 0 0;">${esc(t.report)}</p>
-    ${t.proposal ? `<p style="font-size:var(--fs-sub);margin:8px 0 0;"><b>提案:</b> ${esc(t.proposal)}</p>` : ""}
+// 週の読み物タイル。行数は picks 数から見積もる（1行=32px+隙間8px。pick は最大4行≈94px、所感は最大5行≈110px。実測 2026-09-12）
+function weeklyTile(w) {
+  const picks = w.picks || [];
+  const rows = 4 + picks.length * 3;
+  return `<div class="tile t-weekly" style="grid-row:span ${rows}">
+    <span class="tag">週の読み物 · ${esc(w.from)}〜${esc(w.to)}</span>
+    <h3>${esc(w.title || "今週の3本")}</h3>
+    ${picks.map((p) => `<button class="pick" onclick="openItemFromSearch('${esc(p.date)}','${esc(p.id)}',this)"><b>${esc(p.title)}</b><span>${esc(p.reason || "")}</span></button>`).join("")}
+    ${w.trend ? `<p class="trend">${esc(w.trend)}</p>` : ""}
   </div>`;
-}
-function trialsView() {
-  if (!TRIALS.trials.length) {
-    return `<div class="tile t-empty">「試してみた」第1回は準備中です。<br>気になったネタをチャットで伝えると検証候補になります。</div>`;
-  }
-  return TRIALS.trials.map((t) => trialTile(t)).join("");
 }
 
 /* ══ 記事シート（URL駆動・dialog・液体モーションV2） ══ */
