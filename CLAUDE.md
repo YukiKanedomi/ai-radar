@@ -50,7 +50,7 @@
 - Qiita: 公開API 認証なし60req/h。クエリ tag:生成AI / tag:ClaudeCode / tag:個人開発 tag:生成AI。48h以内。
 - GitHub: search API（未認証10req/min）。直近1週間作成 topic:ai スター30+。
 - YouTube（2026-07-18 追加・チャンネルRSS方式）: `feeds/videos.xml?channel_id=UC...`。キー不要・視聴数入り。既定は直近7日・個人チャンネルは30日（投稿が疎なため）・#shorts除外・混合チャンネルはAI関連タイトルのみ。登録12ch（collect.mjs の YT_CHANNELS。type=個人/解説/ニュース）。**チャンネル追加時の注意**: ハンドル推測は別チャンネルを掴む事故あり（Beyond Fireship・車チャンネル・猫チャンネルを掴んだ実績）。`@handle` ページは channelId が取れないことがあるので、動画の watch ページHTMLから取り、RSSのチャンネル名と最新動画を目視確認する。
-- YouTube 検索発見（2026-09-12 追加・キー不要）: 検索結果ページの `ytInitialData` を読む。`sp=CAMSBAgCEAE=`（今週・視聴数順・動画）。日本語4クエリ、視聴1,500以上・4分以上のみ。量産型講座が多いので channelType=検索発見 として選定側が字幕で見極める。ClaudeCodeチャンネルは全動画LINE誘導で採用0だったため撤去。
+- YouTube 検索発見（2026-09-12 追加・キー不要）: 検索結果ページの `ytInitialData` を読む。狙いは「本人の仕事・生活に根ざした一人称の体験談」（オーナーが挙げた5本の共通属性。正典は taste-profile「映像の好み」）。タイトルに AI と無い動画が多いので、ツール名＋体験の言葉（「Claude Code 作らせてみた」「Codex 使ってみた」等10クエリ）で引き、月・視聴数順と週・新着順の2パス。視聴1,500以上・4分以上、量産型語（完全ガイド/○選/裏技/収益化…）はタイトルで除外。表示タイトルは自動翻訳のことがあるので oEmbed の原題で lang(ja/other) を判定。channelType=検索発見 として選定側が字幕で属性判定。ClaudeCodeチャンネルは全動画LINE誘導で採用0だったため撤去。
 - 将来候補: note（ユーザー/マガジン単位RSSのみ・横断は弱い→WebSearchで補完）、Gmailラベル投函（X人力回収）。
 
 ## 連載構想（複数ページ化の種）

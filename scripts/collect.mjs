@@ -41,10 +41,21 @@ const YT_CHANNELS = [
   // 撤去: ClaudeCodeチャンネル（56号で採用0。全動画がLINE誘導・顧問販売つきで毎回除外されていた）
 ];
 // YouTube 検索発見（キー不要・検索結果ページの ytInitialData を読む。2026-09-12 実測）。
-// 「今週・視聴数順」で日本語の個人投稿を拾う。量産型講座が多いので視聴数の下限と選定側の目利きが前提。
-const YT_SEARCH_QUERIES = ["AI 自作 アプリ", "Claude 使ってみた", "AIで作った ゲーム", "Claude Code 作ってみた"];
+// 狙いは「本人の仕事や生活に根ざした一人称の体験談」（オーナーが良いと挙げた5本の共通属性）。
+// タイトルに AI と無い動画が多いので、ツール名（Claude Code / Codex / Claude）＋体験の言葉で引く。
+// 月内・視聴数順の1パス（週・新着順は無関係な中国語ドラマ等を大量に返したので 2026-09-12 に撤去）。量産型はタイトルで落とす。
+const YT_SEARCH_QUERIES = [
+  "Claude Code 作らせてみた", "Claude Code 自作 ツール", "Codex 使ってみた", "Claude Code 非エンジニア",
+  "AIに作らせた ゲーム", "Claude 1ヶ月 使って", "Claude Code 生活 変わった", "Claude Code 仕事 任せてみた",
+  "AI 自作 アプリ", "Claude 使ってみた",
+];
+const YT_SEARCH_PASSES = [
+  { label: "月・視聴数順", sp: "CAMSBAgDEAE%253D" },
+];
 const YT_SEARCH_MIN_VIEWS = 1500;
 const YT_SEARCH_MIN_SEC = 240; // 4分未満は除外（Shorts・宣伝）
+// 量産型講座・煽り・収益系のタイトル語（該当は候補にしない。2026-09-12 実測で決めた語）
+const YT_NOISE_TITLE = /完全ガイド|完全解説|徹底解説|超解説|\d+選|TOP\d+|神活用|神AI|裏技|最初の一歩|初心者向け|入門|使い方解説|始め方|保存版|講座|LINE|副業|稼ぐ|月収|収益化|速報|まとめ|ニュース|驚愕|凄すぎ|ヤバすぎ|ぶっ壊れ|高過ぎ/;
 
 async function jget(url, extraHeaders = {}) {
   const res = await fetch(url, { headers: { ...UA, ...extraHeaders } });
@@ -238,50 +249,72 @@ function approxPublished(txt) { // "3 時間前" / "2 日前" / "1 週間前" �
   const unit = { 分: 60e3, 時間: 3600e3, 日: 86400e3, 週間: 7 * 86400e3 }[m[2]];
   return new Date(Date.now() - Number(m[1]) * unit).toISOString();
 }
+async function ytSearchPage(q, sp) {
+  const res = await fetch(`https://www.youtube.com/results?search_query=${encodeURIComponent(q)}&sp=${sp}`, {
+    headers: { "User-Agent": BROWSER_UA, "Accept-Language": "ja", Cookie: "CONSENT=YES+cb; SOCS=CAI; PREF=hl=ja&gl=JP" },
+  });
+  if (!res.ok) throw new Error(`${res.status}`);
+  const html = await res.text();
+  const m = html.match(/var ytInitialData = (\{[\s\S]*?\});<\/script>/);
+  if (!m) throw new Error("ytInitialData not found");
+  const vids = [];
+  (function walk(o) {
+    if (!o || typeof o !== "object") return;
+    if (o.videoRenderer) { vids.push(o.videoRenderer); return; }
+    for (const k in o) walk(o[k]);
+  })(JSON.parse(m[1]));
+  return vids;
+}
+// 表示タイトルは YouTube が日本語へ自動翻訳していることがある。oEmbed の原題と比べて言語を判定する
+async function ytOriginalTitle(videoId) {
+  try {
+    const j = await jget(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`);
+    return j.title || "";
+  } catch { return ""; }
+}
 async function youtubeSearch() {
-  const out = [];
+  const found = new Map();
   let first = true;
-  for (const q of YT_SEARCH_QUERIES) {
-    try {
-      if (!first) await sleep(1500);
-      first = false;
-      // sp=CAMSBAgCEAE= : 並び=視聴回数 / 期間=今週 / 種類=動画
-      const res = await fetch(`https://www.youtube.com/results?search_query=${encodeURIComponent(q)}&sp=CAMSBAgCEAE%253D`, {
-        headers: { "User-Agent": BROWSER_UA, "Accept-Language": "ja", Cookie: "CONSENT=YES+cb; SOCS=CAI; PREF=hl=ja&gl=JP" },
-      });
-      if (!res.ok) throw new Error(`${res.status}`);
-      const html = await res.text();
-      const m = html.match(/var ytInitialData = (\{[\s\S]*?\});<\/script>/);
-      if (!m) throw new Error("ytInitialData not found");
-      const vids = [];
-      (function walk(o) {
-        if (!o || typeof o !== "object") return;
-        if (o.videoRenderer) { vids.push(o.videoRenderer); return; }
-        for (const k in o) walk(o[k]);
-      })(JSON.parse(m[1]));
-      for (const v of vids) {
-        const views = Number(String(v.viewCountText?.simpleText || "").replace(/[^\d]/g, "")) || 0;
-        const sec = parseDurationSec(v.lengthText?.simpleText);
-        const title = v.title?.runs?.[0]?.text || "";
-        if (!v.videoId || views < YT_SEARCH_MIN_VIEWS || sec < YT_SEARCH_MIN_SEC) continue;
-        out.push({
-          source: "YouTube",
-          channel: v.ownerText?.runs?.[0]?.text || "",
-          channelType: "検索発見", // 登録外。個人かどうかは選定側が字幕を読んで判断する
-          query: q,
-          title,
-          url: `https://www.youtube.com/watch?v=${v.videoId}`,
-          videoId: v.videoId,
-          thumb: `https://i.ytimg.com/vi/${v.videoId}/hqdefault.jpg`,
-          score: views,
-          comments: null,
-          publishedAt: approxPublished(v.publishedTimeText?.simpleText),
-          excerpt: (v.detailedMetadataSnippets?.[0]?.snippetText?.runs || []).map((r) => r.text).join("").replace(/\s+/g, " ").slice(0, 300),
-        });
-      }
-    } catch (e) { console.error(`[youtube-search:${q}] ${e.message}`); }
+  for (const pass of YT_SEARCH_PASSES) {
+    for (const q of YT_SEARCH_QUERIES) {
+      try {
+        if (!first) await sleep(1200);
+        first = false;
+        for (const v of await ytSearchPage(q, pass.sp)) {
+          const views = Number(String(v.viewCountText?.simpleText || "").replace(/[^\d]/g, "")) || 0;
+          const sec = parseDurationSec(v.lengthText?.simpleText);
+          const title = v.title?.runs?.[0]?.text || "";
+          if (!v.videoId || views < YT_SEARCH_MIN_VIEWS || sec < YT_SEARCH_MIN_SEC || YT_NOISE_TITLE.test(title)) continue;
+          if (found.has(v.videoId)) continue;
+          found.set(v.videoId, {
+            source: "YouTube",
+            channel: v.ownerText?.runs?.[0]?.text || "",
+            channelType: "検索発見", // 登録外。個人の体験談かどうかは選定側が字幕を読んで判断する
+            query: q,
+            pass: pass.label,
+            title,
+            url: `https://www.youtube.com/watch?v=${v.videoId}`,
+            videoId: v.videoId,
+            thumb: `https://i.ytimg.com/vi/${v.videoId}/hqdefault.jpg`,
+            score: views,
+            comments: null,
+            durationSec: sec,
+            publishedAt: approxPublished(v.publishedTimeText?.simpleText),
+            excerpt: (v.detailedMetadataSnippets?.[0]?.snippetText?.runs || []).map((r) => r.text).join("").replace(/\s+/g, " ").slice(0, 300),
+          });
+        }
+      } catch (e) { console.error(`[youtube-search:${pass.label}:${q}] ${e.message}`); }
+    }
   }
-  return out;
+  // 原題で言語判定（翻訳タイトルの英語動画を「日本語」と誤認しないため）
+  for (const v of found.values()) {
+    await sleep(250);
+    const orig = await ytOriginalTitle(v.videoId);
+    v.titleOriginal = orig || v.title;
+    v.titleTranslated = !!orig && orig !== v.title;
+    v.lang = /[぀-ゟ゠-ヿ]/.test(v.titleOriginal) ? "ja" : "other"; // かなを含むものだけ日本語（漢字のみは中国語の可能性）
+  }
+  return [...found.values()];
 }
 
 // --- main ---
