@@ -44,7 +44,7 @@ button{font:inherit;cursor:pointer;color:inherit;}
 
 /* ══ モザイク盤面 ══ */
 .mosaic{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;
-  grid-auto-rows:32px;grid-auto-flow:dense;}
+  grid-auto-rows:minmax(32px,auto);grid-auto-flow:dense;} /* 文字が溢れる面は行が伸びる（固定高で行の途中が切れるのを防ぐ） */
 .tile{border-radius:var(--r-m);padding:12px;position:relative;overflow:hidden;
   display:flex;flex-direction:column;border:none;text-align:left;background:none;}
 button.tile{transition:transform .1s;}
@@ -100,6 +100,10 @@ button.tile:active{transform:scale(.985);}
 .t-after{grid-column:span 4;grid-row:span 6;background:var(--char);color:#D9DBE0;}
 .t-after .tag{color:#9EA3AE;}
 .t-after p{margin:0;font-size:var(--fs-sub);line-height:1.85;}
+
+/* 休刊のお知らせ（最新号が今日の号でないとき） */
+.t-notice{grid-column:span 4;grid-row:span 1;background:#fff;border:1.5px solid var(--line);
+  justify-content:center;padding:8px 12px;font-size:var(--fs-sub);font-weight:700;color:var(--sub);line-height:1.6;}
 
 /* 空・状態 */
 .t-empty{grid-column:span 4;grid-row:span 5;background:none;align-items:center;

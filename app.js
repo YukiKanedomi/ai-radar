@@ -72,6 +72,9 @@ const issueByDate = (d) => DATA.issues.find((i) => i.date === d);
 // meta.currentIssue は日付文字列が正だが、自動配信が号番号(数値)を書いた時期がある（2026-09-12 発覚: 今日/振り返るが落ちていた）。
 // どちらでも解決し、見つからなければ先頭の号にする。
 const currentIssue = () => DATA.issues.find((i) => i.date === DATA.meta.currentIssue || i.no === DATA.meta.currentIssue) || DATA.issues[0];
+// 最新号が「今日の号」かを判定する。配信は毎朝7:15（JST）なので、その前は前日号を今日の号として扱う。
+const issueDay = () => new Date(Date.now() + (9 * 60 - 7 * 60 - 15) * 60000).toISOString().slice(0, 10);
+const mdW = (d) => `${+d.slice(5, 7)}/${+d.slice(8, 10)}（${"日月火水木金土"[new Date(d + "T00:00:00Z").getUTCDay()]}）`;
 
 function findItem(date, id) {
   const issue = issueByDate(date);
@@ -92,11 +95,13 @@ function render() {
     const on = state.view === v || (state.view === "issue" && (state.date === currentIssue().date ? v === "today" : v === "explore"));
     if (on) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
   });
+  const stale = currentIssue().date < issueDay();
+  $('.app-nav button[data-nav="today"]').textContent = stale ? "最新号" : "今日";
   const m = $("#main");
   if (state.view === "today") {
     const issue = currentIssue();
     setHeadSub(`No.${issue.no} — ${esc(issue.date)}<br><b>深掘り${issue.deep.length} · 短信${issue.log.length} · 映像${(issue.videos || []).length}</b>`);
-    m.innerHTML = issueMosaic(issue);
+    m.innerHTML = (stale ? `<div class="tile t-notice">最新号は${mdW(issue.date)}です。以降は休刊中です。</div>` : "") + issueMosaic(issue);
   } else if (state.view === "issue") {
     const issue = issueByDate(state.date) || currentIssue();
     setHeadSub(`No.${issue.no} — ${esc(issue.date)}`);
