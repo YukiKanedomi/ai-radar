@@ -44,6 +44,21 @@ issues.forEach((i, idx) => {
   }
 });
 
+// 話題の再掲チェック（警告のみ）: 最新号の各記事の titleJa を直近30号と文字2-gramのJaccardで比べる。
+// 背景: URL照合だけでは同じ話題の別記事が素通りした（スマートTV広告除去 92号と103号、2026-11 点検）。
+// 0.35 は既存106号で較正（完全再掲・同題の言い換えは拾い、「Claude Code」共通程度では鳴らない）。言い換えまでは拾えない。
+const norm = (s) => (s || "").normalize("NFKC").toLowerCase().replace(/[\s、。，．・「」『』（）()！？!?,.:：…\-—〜~"]/g, "");
+const bigrams = (s) => { const t = norm(s), b = new Set(); for (let k = 0; k < t.length - 1; k++) b.add(t.slice(k, k + 2)); return b; };
+const jaccard = (a, b) => { let n = 0; for (const x of a) if (b.has(x)) n++; return n / (a.size + b.size - n || 1); };
+const items = (i) => [...(i.deep || []), ...(i.log || []), ...(i.videos || [])];
+if (issues.length > 1) {
+  const past = issues.slice(1, 31).flatMap((p) => items(p).map((x) => ({ tag: `第${p.no}号 ${x.id}`, t: x.titleJa || x.title, b: bigrams(x.titleJa || x.title) })));
+  for (const it of items(issues[0])) {
+    const b = bigrams(it.titleJa || it.title);
+    for (const p of past) { const s = jaccard(b, p.b); if (s >= 0.35) warn(`第${issues[0].no}号 ${it.id}: ${p.tag} と話題が近い（類似${s.toFixed(2)}）「${p.t}」`); }
+  }
+}
+
 // 週の読み物: picks が実在の号・記事を指すか
 try {
   const w = JSON.parse(readFileSync("data/weekly.json", "utf8"));
