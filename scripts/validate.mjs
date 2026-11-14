@@ -11,6 +11,9 @@ const errors = [], warns = [];
 const err = (m) => errors.push(m);
 const warn = (m) => warns.push(m); // 過去号どうしの重複は警告どまり（既に公開済み。新号が過去と重複したらエラー）
 
+// 深掘りの絵（deep[].art）の検査は、画面側（art.js）と同じ関数を使う（食い違いを作らない）
+const artProblem = new Function(readFileSync("art.js", "utf8").split("/*ART-CHECK-BEGIN*/")[1].split("/*ART-CHECK-END*/")[0] + "; return artProblem;")();
+
 const d = JSON.parse(readFileSync("data/issues.json", "utf8"));
 const issues = d.issues || [];
 if (!issues.length) err("issues が空");
@@ -33,6 +36,10 @@ issues.forEach((i, idx) => {
       if (!it.url) err(`${t}: url 無し`);
       if (!GENRES.includes(it.genre)) err(`${t}: genre「${it.genre}」は固定8種にない`);
       if (!(it[textKey] || it.note)) err(`${t}: ${textKey} が空`);
+      if (it.art !== undefined) {
+        if (kind !== "deep") err(`${t}: art は深掘りにだけ付ける`);
+        else { const p = artProblem(it.art); if (p) err(`${t}: art（絵）が使えない — ${p}。直せなければ art を消す（ジャンルの図で代用される）`); }
+      } else if (kind === "deep" && idx === 0) warn(`${t}: art（絵）が無い。ジャンルの図で代用される`);
       if (kind === "videos") {
         if (!it.videoId) err(`${t}: videoId 無し`);
         else { if (seenVid.has(it.videoId)) (idx === 0 ? err : warn)(`${t}: videoId が ${seenVid.get(it.videoId)} と重複`); seenVid.set(it.videoId, tag); }

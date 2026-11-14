@@ -100,7 +100,6 @@ function render() {
   const m = $("#main");
   const shown = state.view === "issue" ? (issueByDate(state.date) || currentIssue()) : currentIssue();
   applyPalette(shown); // 号ごとの色（art.js）
-  m.className = state.view === "today" || state.view === "issue" ? "feed" : "mosaic";
   if (state.view === "today") {
     const issue = currentIssue();
     setHeadSub(`No.${issue.no} — ${esc(issue.date)}<br><b>深掘り${issue.deep.length} · 短信${issue.log.length} · 映像${(issue.videos || []).length}</b>`);
@@ -216,7 +215,7 @@ function exploreBody() {
     }
     h += `<button class="tile t-issue-row" onclick="navigate({view:'issue',date:'${esc(i.date)}',item:null})">
       <span class="no">第${i.no}号 · ${esc(i.date)}</span>
-      <h3 class="clamp2">${esc(i.headline)}</h3>
+      <h3>${esc(i.headline)}</h3>
       <span class="cnt">深掘り${i.deep.length} · 短信${i.log.length} · 映像${(i.videos || []).length}</span>
     </button>`;
   }
@@ -238,7 +237,7 @@ function allVideos() {
     h += `<button class="tile t-vroom" data-item="${esc(v.id)}" onclick="openItem('${esc(v.date)}','${esc(v.id)}',this)">
       <span class="vthumb"><img src="https://i.ytimg.com/vi/${esc(v.videoId)}/hqdefault.jpg" alt="" loading="lazy" onerror="this.remove()">${PLAY}</span>
       <span class="vbody">
-        <h3 class="clamp2">${esc(v.titleJa || v.title)}</h3>
+        <h3>${esc(v.titleJa || v.title)}</h3>
         <span class="vm">${esc(v.channel)} · ${fmtViews(v.views)} · ${esc(v.publishedAt || "")}</span>
         <span class="note">${esc(v.summary || v.note || "")}</span>
       </span>
@@ -267,7 +266,7 @@ function searchResults(q) {
   return rs.map((r) => {
     return `<button class="tile t-result" onclick="openItemFromSearch('${esc(r.date)}','${esc(r.id)}',this)">
       <span class="meta"><span class="kind">${r.kind}</span>${esc(r.date)}${r.sub ? " · " + esc(r.sub) : ""}</span>
-      <h3 class="clamp2">${esc(r.title)}</h3>
+      <h3>${esc(r.title)}</h3>
     </button>`;
   }).join("");
 }
@@ -320,14 +319,14 @@ function reviewView() {
     </div>`;
   if (weeklies.length) h += weeklies.map(weeklyTile).join("");
   else if (mode === "week" && idx === 0) h += `<div class="tile t-weekly-wait">週の読み物は日曜の朝に届きます</div>`;
-  h += `<div class="tile t-stat"><span class="num">${issues.length}</span><span class="lb">発行号</span><span class="foot">記事${items.length}本</span></div>
-    <div class="tile t-stat"><span class="num">${vids.length}</span><span class="lb">映像</span><span class="foot">字幕全文を読んで要約</span></div>`;
+  h += `<div class="stat-row"><div class="tile t-stat"><span class="num">${issues.length}</span><span class="lb">発行号</span><span class="foot">記事${items.length}本</span></div>
+    <div class="tile t-stat"><span class="num">${vids.length}</span><span class="lb">映像</span><span class="foot">字幕全文を読んで要約</span></div></div>`;
 
   const genreRows = Object.entries(genres).sort((a, b) => b[1] - a[1]);
-  h += `<div class="tile t-list rows6"><span class="tag">ジャンルの電波（実受信数）</span><ul>` +
+  h += `<div class="tile t-list"><span class="tag">ジャンルの電波（実受信数）</span><ul>` +
     (genreRows.map(([g, n]) => `<li><b>${esc(g)}</b><span class="n">${n}本</span></li>`).join("") || "<li>受信なし</li>") +
     `</ul></div>`;
-  h += `<div class="tile t-list rows4"><span class="tag">源の内訳</span><ul>` +
+  h += `<div class="tile t-list"><span class="tag">源の内訳</span><ul>` +
     (Object.entries(sources).sort((a, b) => b[1] - a[1]).map(([s, n]) => `<li><b>${esc(s)}</b><span class="n">${n}本</span></li>`).join("") || "<li>受信なし</li>") +
     `</ul></div>`;
 
@@ -335,16 +334,15 @@ function reviewView() {
   for (const i of issues) {
     h += `<button class="tile t-issue-row" onclick="navigate({view:'issue',date:'${esc(i.date)}',item:null})">
       <span class="no">第${i.no}号 · ${esc(i.date)}</span>
-      <h3 class="clamp2">${esc(i.headline)}</h3>
+      <h3>${esc(i.headline)}</h3>
     </button>`;
   }
   return h;
 }
-// 週の読み物タイル。行数は picks 数から見積もる（1行=32px+隙間8px。pick は最大4行≈94px、所感は最大5行≈110px。実測 2026-09-12）
+// 週の読み物タイル。題・理由・所感は切らずに全文を出す（2026-11-14）
 function weeklyTile(w) {
   const picks = w.picks || [];
-  const rows = 4 + picks.length * 3;
-  return `<div class="tile t-weekly" style="grid-row:span ${rows}">
+  return `<div class="tile t-weekly">
     <span class="tag">週の読み物 · ${esc(w.from)}〜${esc(w.to)}</span>
     <h3>${esc(w.title || "今週の3本")}</h3>
     ${picks.map((p) => `<button class="pick" onclick="openItemFromSearch('${esc(p.date)}','${esc(p.id)}',this)"><b>${esc(p.title)}</b><span>${esc(p.reason || "")}</span></button>`).join("")}

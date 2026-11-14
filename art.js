@@ -155,6 +155,49 @@ const ART_SAMPLE = {
     <g class="s-ink" stroke-width="1.6" opacity=".7"><path d="M191 81 h6 M283 81 h6 M240 23 v6 M240 137 v6"/></g>
     <path d="M205 150 h70" class="s-ink" stroke-width="2"/><path d="M205 146 v8 M275 146 v8 M240 147 v6" class="s-ink" stroke-width="2"/>`),
 };
+/*ART-CHECK-BEGIN*/
+/* 毎朝のジョブが描いた絵（issues.json の deep[].art）の検査。scripts/validate.mjs もこの区間を読んで同じ検査をする。
+   art は <svg> の中身だけ（外枠は svg() が付ける）。図形の要素と、下の属性だけを通す。
+   文字・リンク・スクリプト・style・外部参照は書けない（公開ページにそのまま差し込むため）。問題があれば理由を返し、なければ null。 */
+const ART_EL = new Set(["g", "path", "rect", "circle", "ellipse", "line", "polyline", "polygon"]);
+const ART_AT = new Set(["class", "d", "x", "y", "x1", "y1", "x2", "y2", "cx", "cy", "r", "rx", "ry", "width", "height", "points",
+  "transform", "fill", "stroke", "stroke-width", "stroke-linecap", "stroke-linejoin", "stroke-dasharray",
+  "opacity", "fill-opacity", "stroke-opacity", "fill-rule"]);
+const ART_CLASS = new Set(["a-on", "s-on", "a-pop", "s-pop", "a-deep", "s-deep", "a-tint", "a-paper", "a-ink", "s-ink"]);
+const ART_MAX = 6000;
+function artProblem(s) {
+  if (typeof s !== "string" || !s.trim()) return "空か、文字列でない";
+  if (s.length > ART_MAX) return `長すぎる（${s.length}字。上限 ${ART_MAX}字）`;
+  const tag = /\s*<(\/?)([A-Za-z]+)((?:\s+[A-Za-z0-9-]+="[^"<>&]*")*)\s*(\/?)>\s*/y;
+  const open = [];
+  let pos = 0, count = 0;
+  while (pos < s.length) {
+    tag.lastIndex = pos;
+    const m = tag.exec(s);
+    if (!m) return `図形のタグ以外が書かれている（${pos}字目あたり「${s.slice(pos, pos + 24)}」）`;
+    pos = tag.lastIndex;
+    const [, close, name, attrs, self] = m;
+    if (!ART_EL.has(name)) return `使えない要素 <${name}>`;
+    if (close) {
+      if (attrs || self || open.pop() !== name) return `閉じタグ </${name}> が合わない`;
+      continue;
+    }
+    count++;
+    for (const a of attrs.matchAll(/([A-Za-z0-9-]+)="([^"]*)"/g)) {
+      const [, k, v] = a;
+      if (!ART_AT.has(k)) return `使えない属性 ${k}`;
+      if (k === "class") { if (!v.split(/\s+/).filter(Boolean).every((c) => ART_CLASS.has(c))) return `使えないクラス「${v}」`; }
+      else if (k === "fill" || k === "stroke") { if (!/^(none|#[0-9A-Fa-f]{3}|#[0-9A-Fa-f]{6})$/.test(v)) return `${k} は none か #RRGGBB（今「${v}」）`; }
+      else if (!/^[A-Za-z0-9\s.,%()+-]*$/.test(v) || /url|script/i.test(v)) return `属性 ${k} の値「${v.slice(0, 24)}」`;
+    }
+    if (!self) open.push(name);
+  }
+  if (open.length) return `<${open[open.length - 1]}> が閉じていない`;
+  if (count < 3) return "図形が少なすぎる（3つ以上）";
+  return null;
+}
+/*ART-CHECK-END*/
 function artFor(issue, item) {
-  return item.art || ART_SAMPLE[`${issue.date}/${item.id}`] || motifOf(item.genre);
+  if (item.art && !artProblem(item.art)) return svg(item.art); // 検査に落ちた絵は使わず、下の図に戻す
+  return ART_SAMPLE[`${issue.date}/${item.id}`] || motifOf(item.genre);
 }
