@@ -33,8 +33,8 @@
 - `data/taste-profile.md` — 興味プロフィール（フィードバックで育つ）
 - `data/weekly.json` — 週の読み物（日曜の自動実行が追記。picks は号の date+id で記事にリンク）
 - `scripts/reddit-post.mjs` — Reddit 投稿の本文＋上位コメントを平文化（無人実行の WebFetch は Reddit を読めないため。投稿URL+/.rss 経路）
-- `index.html` + `app.js` + `styles.css` — アプリ本体（ビルド不要の静的構成。壊れる部品を増やさない）
-  - デザインは「リキッド・モザイク」（2026-07-18 刷新・Codex壁打ち発案）: 号全体が1枚の不均等モザイク面、面積＝深さ、タップで液体拡大。同日に企業級の基礎整備（タイポ5段階・状態色の分離・44px操作系・シートのdialog化・safe-area）済み。サムネは `i.ytimg.com/vi/<videoId>/hqdefault.jpg`。
+- `index.html` + `app.js` + `styles.css` + `art.js` — アプリ本体（ビルド不要の静的構成。壊れる部品を増やさない）
+  - デザインは「リキッド・モザイク」（2026-07-18 刷新・Codex壁打ち発案）: 号全体が1枚の不均等モザイク面、面積＝深さ、タップで液体拡大。同日に企業級の基礎整備（タイポ5段階・状態色の分離・44px操作系・シートのdialog化・safe-area）済み。サムネは `i.ytimg.com/vi/<videoId>/hqdefault.jpg`。**今日画面と号の画面は 2026-11-14 に作り直した**（本人の答え合わせ4点）: 1列・題は全文・冒頭の見出しなし（導入文は末尾の折りたたみ「この号の受信メモ」）・深掘りカードに絵（`art.js`。ジャンル別の図8種）・色は号数 % 7 で7組のパレット。探す／振り返るは従来のモザイクのまま。経緯と未決は `BACKLOG.md`。
   - IA（2026-07-18 刷新・Codex壁打ち、2026-09-12 に試してみたタブ撤去）: 主ナビ「今日 / 探す / 振り返る」。過去号・全文検索（クライアント線形検索）・映像一覧は「探す」内。振り返るは週の読み物＋週/月の実測集計（ジャンルは固定8種）。URLは `?view=issue&date=YYYY-MM-DD&item=d1` の日付＋安定ID方式（pushState、戻るボタンでシートが閉じる）。旧URL（latest/archive/videos）は互換リダイレクト。QA用: `?shot=1`（撮影時の幅固定）。
 - `scripts/daily-collect-prompt.txt` + `scripts/run-daily.ps1` — 毎朝の自動配信（Task Scheduler: AIRadarDaily）
 

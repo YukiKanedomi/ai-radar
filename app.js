@@ -98,6 +98,9 @@ function render() {
   const stale = currentIssue().date < issueDay();
   $('.app-nav button[data-nav="today"]').textContent = stale ? "最新号" : "今日";
   const m = $("#main");
+  const shown = state.view === "issue" ? (issueByDate(state.date) || currentIssue()) : currentIssue();
+  applyPalette(shown); // 号ごとの色（art.js）
+  m.className = state.view === "today" || state.view === "issue" ? "feed" : "mosaic";
   if (state.view === "today") {
     const issue = currentIssue();
     setHeadSub(`No.${issue.no} — ${esc(issue.date)}<br><b>深掘り${issue.deep.length} · 短信${issue.log.length} · 映像${(issue.videos || []).length}</b>`);
@@ -130,20 +133,35 @@ document.querySelectorAll(".app-nav button").forEach((b) => {
   b.onclick = () => navigate({ view: b.dataset.nav, item: null, date: null, q: "" });
 });
 
-/* ── 号のモザイク ── */
+/* 後記・受信メモに出てくる記事の記号（d1・l3・v2）を、読める呼び名に直す。その号に実在する記号だけ */
+const ID_NAME = { d: "深掘り", l: "短信", v: "映像" };
+function nameIds(text, issue) {
+  const ids = new Set([...issue.deep, ...issue.log, ...(issue.videos || [])].map((x) => x.id));
+  return esc(text).replace(/(?:(?:深掘り|短信|映像)の)?(?<![A-Za-z0-9.])([dlv])([1-9])(?![A-Za-z0-9.])/g,
+    (m, k, n) => (ids.has(k + n) ? ID_NAME[k] + n : m));
+}
+
+/* ── 号の盤面（2026-11-14: 1列・絵つき・題は切らない・冒頭の見出しなし） ── */
 function issueMosaic(issue) {
-  let h = `<div class="tile t-intro"><div class="hl">${esc(issue.headline)}</div><div class="in clamp2">${esc(issue.intro)}</div></div>`;
+  let h = "";
   issue.deep.forEach((d, i) => {
     h += `<button class="tile t-deep ${DEEP_C[i % 3]}" data-item="${esc(d.id)}" onclick="openItem('${esc(issue.date)}','${esc(d.id)}',this)">
-      <span class="tag">深掘り · ${esc(d.genre)} · ${esc(d.source)}</span>
-      <h2 class="clamp3">${esc(d.titleJa || d.title)}</h2>
-      <span class="foot">タップで拡大 →</span>
+      <span class="art">${artFor(issue, d)}</span>
+      <span class="body">
+        <span class="tag">${esc(d.genre)} · ${esc(d.source)}</span>
+        <h2>${esc(d.titleJa || d.title)}</h2>
+        <span class="foot">読む →</span>
+      </span>
     </button>`;
   });
-  issue.log.forEach((l) => {
+  if (issue.log.length) h += `<div class="tile t-sec"><span class="s">短信</span><span class="r"></span></div>`;
+  issue.log.forEach((l, i) => {
     h += `<button class="tile t-log" data-item="${esc(l.id)}" onclick="openItem('${esc(issue.date)}','${esc(l.id)}',this)">
-      <span class="tag">${esc(l.genre)} · ${esc(l.source)}</span>
-      <h3 class="clamp3">${esc(l.titleJa || l.title)}</h3>
+      <span class="mark ${DEEP_C[i % 3]}">${motifOf(l.genre)}</span>
+      <span class="body">
+        <span class="tag">${esc(l.genre)} · ${esc(l.source)}</span>
+        <h3>${esc(l.titleJa || l.title)}</h3>
+      </span>
     </button>`;
   });
   const vids = issue.videos || [];
@@ -152,15 +170,19 @@ function issueMosaic(issue) {
     vids.forEach((v) => {
       h += `<button class="tile t-video" data-item="${esc(v.id)}" onclick="openItem('${esc(issue.date)}','${esc(v.id)}',this)">
         <span class="vthumb"><img src="https://i.ytimg.com/vi/${esc(v.videoId)}/hqdefault.jpg" alt="" loading="lazy" onerror="this.remove()">${PLAY}</span>
-        <h3 class="clamp2">${esc(v.titleJa || v.title)}</h3>
-        <span class="vm">${esc(v.channel)} · ${fmtViews(v.views)}</span>
+        <span class="body">
+          <h3>${esc(v.titleJa || v.title)}</h3>
+          <span class="vm">${esc(v.channel)} · ${fmtViews(v.views)}</span>
+        </span>
       </button>`;
     });
   }
-  if (issue.afterword) {
-    h += `<div class="tile t-after"><span class="tag">後記</span><p>${esc(issue.afterword)}</p></div>`;
+  const after = issue.afterword || issue.outro; // データの鍵は outro（古い号の一部は afterword）
+  if (after) {
+    h += `<div class="tile t-after"><span class="tag">後記</span><p>${nameIds(after, issue)}</p></div>`;
   }
-  h += `<div class="tile t-strip"><span class="s">面積＝深さ · 感想はチャットで伝えると選定眼が育つ</span></div>`;
+  if (issue.intro) h += `<details class="tile t-memo"><summary>この号の受信メモ</summary><p>${nameIds(issue.intro, issue)}</p></details>`;
+  h += `<div class="tile t-strip"><span class="s">感想はチャットで伝えると選定眼が育つ</span></div>`;
   return h;
 }
 window.openItem = (date, id, el) => {
@@ -342,6 +364,7 @@ function sheetHtml(found) {
     : type === "log" ? `短信 · ${esc(item.genre)} · ${esc(item.source)}`
     : `映像 · ${esc(item.genre)} · ${esc(item.channel)}`;
   let body = "";
+  if (type === "deep") body += `<div class="sheet-art ${color}">${artFor(issue, item)}</div>`;
   if (type === "video") {
     body += `<img class="bigthumb" src="https://i.ytimg.com/vi/${esc(item.videoId)}/hqdefault.jpg" alt="" onerror="this.remove()">
       <div class="vmeta">${esc(item.channel)} · ${fmtViews(item.views)}（収集時点） · 公開 ${esc(item.publishedAt || "")}</div>`;
