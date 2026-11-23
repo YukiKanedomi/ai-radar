@@ -300,3 +300,10 @@ footer{margin-top:24px;font-size:var(--fs-meta);color:var(--sub);text-align:cent
 .t-issue-row .rc{color:var(--ink);}
 .tag .wild{display:inline-block;background:var(--ink);color:#fff;border-radius:4px;padding:0 6px;margin-right:6px;letter-spacing:.08em;}
 .sheet-body .lb + .prose p:first-child{margin-top:6px;}
+
+/* 2026-11-23: 記事画面の題は本文と一緒に流す（帯が貼りついて本文が3分の2しか見えなかった）。閉じるボタンだけ右上に残す */
+.sheet-inner{overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.sheet-body{flex:none;overflow:visible;}
+.sheet-head .hwrap > div{padding-right:52px;}
+.sheet-head .close{position:fixed;z-index:5;top:calc(12px + env(safe-area-inset-top));right:12px;
+  background:rgba(34,36,42,.82);color:#fff;box-shadow:0 0 0 2px rgba(255,255,255,.55);}

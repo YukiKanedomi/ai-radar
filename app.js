@@ -489,7 +489,7 @@ function watchRead(found, key, sh) {
     if (!es.some((e) => e.isIntersecting)) return;
     endObserver.disconnect();
     setTimeout(() => { if (openedKey === key) track("e", found); }, Math.max(0, 4000 - (Date.now() - opened)));
-  }, { root: sh.querySelector(".sheet-body") });
+  }, { root: sh.querySelector(".sheet-inner") });
   endObserver.observe(mark);
 }
 window.trackSrc = () => track("s", currentFound);
