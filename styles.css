@@ -271,3 +271,32 @@ footer{margin-top:24px;font-size:var(--fs-meta);color:var(--sub);text-align:cent
   .scrim{transition:none;}
   button.tile,.app-nav button{transition:none;}
 }
+
+/* ══ 2026-11-23: 本文の書式（小見出し・太字・マーカー）／読む動画／読んだ印／圏外枠 ══ */
+.sheet-body .bwrap{--hl:#FFE48A;}
+.sheet-body .bwrap.c0,.sheet-body .bwrap.c1,.sheet-body .bwrap.c2{--hl:color-mix(in srgb,var(--card) 26%,#fff);}
+.prose p:first-child{margin-top:0;}
+.prose h4{font-size:var(--fs-card);font-weight:900;line-height:1.5;margin:28px 0 4px;padding-left:10px;
+  border-left:4px solid var(--card,var(--ink));}
+.prose h4 + p{margin-top:8px;}
+.prose strong,.apply strong{font-weight:800;}
+.prose mark,.apply mark{background:linear-gradient(transparent 58%,var(--hl) 58%);color:inherit;font-weight:700;padding:0 1px;}
+.sheet-body .vsrc{display:flex;gap:12px;align-items:center;margin-bottom:12px;
+  font-size:var(--fs-meta);font-weight:700;color:var(--sub);line-height:1.6;}
+.sheet-body .vsrc img{width:112px;aspect-ratio:16/9;object-fit:cover;border-radius:var(--r-s);flex:none;}
+.sheet-body .basis{margin-top:16px;}
+.end-mark{display:block;height:1px;}
+
+/* 映像の札: 短信と同じ横並び。サムネは小さく、題を主役に */
+.t-video{flex-direction:row;align-items:flex-start;gap:14px;padding:14px;}
+.t-video .vthumb{width:96px;aspect-ratio:16/9;border-radius:10px;}
+.t-video .body{padding:0;}
+.t-video .tag{color:var(--sub);letter-spacing:.04em;}
+
+/* 読んだ印: 末尾まで読んだ札は薄く、開いただけの札は「途中」 */
+.tile.is-read{opacity:.6;}
+.tile.is-read .tag::after{content:" · 読んだ";}
+.tile.is-seen .tag::after{content:" · 途中";}
+.t-issue-row .rc{color:var(--ink);}
+.tag .wild{display:inline-block;background:var(--ink);color:#fff;border-radius:4px;padding:0 6px;margin-right:6px;letter-spacing:.08em;}
+.sheet-body .lb + .prose p:first-child{margin-top:6px;}

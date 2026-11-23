@@ -20,6 +20,17 @@ if (!issues.length) err("issues が空");
 if (typeof d.meta?.currentIssue !== "string" || !DATE.test(d.meta.currentIssue)) err(`meta.currentIssue は日付文字列 YYYY-MM-DD にする（今: ${JSON.stringify(d.meta?.currentIssue)}）`);
 else if (d.meta.currentIssue !== issues[0]?.date) err(`meta.currentIssue (${d.meta.currentIssue}) が先頭の号 (${issues[0]?.date}) と一致しない`);
 
+function markProblem(text) {
+  if (!text) return null;
+  for (const line of String(text).split(/\n+/)) {
+    const head = line.startsWith("## ");
+    if (!head && line.includes("## ")) return "「## 」は行頭にだけ書く（前に改行を入れる）";
+    if (head && /\*\*|==/.test(line)) return "小見出しの中で ** や == は使えない";
+    for (const m of ["**", "=="]) if ((line.split(m).length - 1) % 2) return `${m} が同じ段落の中で閉じていない`;
+  }
+  return null;
+}
+
 const seenUrl = new Map(), seenVid = new Map();
 issues.forEach((i, idx) => {
   const tag = `第${i.no}号 ${i.date}`;
@@ -36,6 +47,12 @@ issues.forEach((i, idx) => {
       if (!it.url) err(`${t}: url 無し`);
       if (!GENRES.includes(it.genre)) err(`${t}: genre「${it.genre}」は固定8種にない`);
       if (!(it[textKey] || it.note)) err(`${t}: ${textKey} が空`);
+      // 本文の印（2026-11-23 の号から。画面もそれより前の号は印を解釈しない）: ** と == は対で閉じる。小見出しは行頭の「## 」だけ
+      for (const f of ["summary", "note", "why", "apply"]) {
+        const p = i.date >= "2026-11-23" && markProblem(it[f]); if (p) (idx === 0 ? err : warn)(`${t}: ${f} の印 — ${p}`);
+      }
+      for (const f of ["titleJa", "basis"]) if (/\*\*|==|^## /m.test(it[f] || "")) (idx === 0 ? err : warn)(`${t}: ${f} に本文の印（** == ##）は使えない`);
+      if (it.wild !== undefined && (kind !== "log" || it.wild !== true)) err(`${t}: wild（圏外枠）は受信ログに true でだけ付ける`);
       if (it.art !== undefined) {
         if (kind !== "deep") err(`${t}: art は深掘りにだけ付ける`);
         else { const p = artProblem(it.art); if (p) err(`${t}: art（絵）が使えない — ${p}。直せなければ art を消す（ジャンルの図で代用される）`); }
@@ -69,14 +86,17 @@ if (issues.length > 1) {
 // 週の読み物: picks が実在の号・記事を指すか
 try {
   const w = JSON.parse(readFileSync("data/weekly.json", "utf8"));
-  for (const wk of w.weeks || []) {
+  for (const [wi, wk] of (w.weeks || []).entries()) {
     const tag = `weekly ${wk.from}〜${wk.to}`;
+    for (const f of ["title", "trend"]) if (/\*\*|==|^## /m.test(wk[f] || "")) err(`${tag}: ${f} に本文の印は使えない`);
     if (!DATE.test(wk.to || "") || !DATE.test(wk.from || "")) err(`${tag}: from/to 形式`);
     if (!wk.trend) err(`${tag}: trend が空`);
     for (const p of wk.picks || []) {
       const issue = issues.find((i) => i.date === p.date);
-      const hit = issue && [...issue.deep, ...issue.log, ...(issue.videos || [])].some((x) => x.id === p.id);
+      const hit = issue && [...issue.deep, ...issue.log, ...(issue.videos || [])].find((x) => x.id === p.id);
       if (!hit) err(`${tag}: pick ${p.date}/${p.id} が号に存在しない`);
+      // 題が指す先の記事と違う（2026-11-22 の週: 11/20 の記事の理由文に 11/19 の記事の題と日付が付いていた）
+      else if (p.title !== (hit.titleJa || hit.title)) (wi === 0 ? err : warn)(`${tag}: pick ${p.date}/${p.id} の title が号の記事の題と違う。理由文がどの記事の話かを確かめ、date・id・title を合わせる`);
     }
   }
 } catch (e) { err(`weekly.json: ${e.message}`); }

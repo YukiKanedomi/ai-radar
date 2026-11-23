@@ -10,6 +10,40 @@ const DEEP_C = ["c0", "c1", "c2"]; // 面の識別色（編集的な意味は無
 const fmtViews = (n) => n == null ? "" : `視聴 ${Number(n).toLocaleString("ja-JP")}`;
 const reduceMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+/* ══ 本文の書式（2026-11-23）: 改行=段落、行頭「## 」=小見出し、**太字**、==マーカー==。古い号は印が無いので1段落のまま出る ══ */
+const MARKS_FROM = "2026-11-23"; // これより前の号は印を解釈しない（本文に == や ** がそのまま出てくる号がある）
+const inlineMarks = (t, on = true) => !on ? esc(t) : esc(t).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>").replace(/==(.+?)==/g, "<mark>$1</mark>");
+function rich(text, on = true) {
+  if (!on) return `<p>${esc(text)}</p>`;
+  return String(text || "").split(/\n+/).map((l) => l.trim()).filter(Boolean)
+    .map((l) => (l.startsWith("## ") ? `<h4>${inlineMarks(l.slice(3))}</h4>` : `<p>${inlineMarks(l)}</p>`)).join("");
+}
+const plain = (text) => String(text || "").replace(/^## /gm, "").replace(/\*\*|==/g, "").replace(/\n+/g, " ");
+
+/* ══ 読んだ記録（2026-11-23）: 開いた(o)・末尾まで読んだ(e)・元記事を開いた(s) を端末に残す。
+   合言葉（?me=… を一度開いた端末だけが持つ）と READS_URL の両方があるときだけ、集計の受け皿へも送る ══ */
+const READS_URL = ""; // Google Apps Script の受け皿の URL（scripts/reads-receiver.gs を公開して入れる）
+const SHOT = location.search.includes("shot=1");
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch {} },
+};
+let READ = {};
+try { READ = JSON.parse(store.get("air.read") || "{}") || {}; } catch { READ = {}; }
+const readOf = (date, id) => READ[`${date}/${id}`] || {};
+const readCls = (date, id) => { const r = readOf(date, id); return r.e ? " is-read" : r.o ? " is-seen" : ""; };
+function track(kind, found) {
+  if (SHOT || !found) return;
+  const key = `${found.issue.date}/${found.item.id}`;
+  const r = READ[key] || (READ[key] = {});
+  const first = !r[kind];
+  if (first) { r[kind] = Date.now(); store.set("air.read", JSON.stringify(READ)); }
+  const me = store.get("air.key");
+  if (!first || !READS_URL || !me || !navigator.sendBeacon) return;
+  navigator.sendBeacon(READS_URL, JSON.stringify({ key: me, k: kind, date: found.issue.date, no: found.issue.no,
+    id: found.item.id, type: found.type, genre: found.item.genre || "", wild: !!found.item.wild }));
+}
+
 /* ══ 状態とルーター ══ */
 const VIEWS = ["today", "explore", "review", "issue"];
 let state = { view: "today", date: null, item: null, period: null, q: "", vf: "issues" };
@@ -57,6 +91,8 @@ async function boot() {
   try {
     DATA = await (await fetch("data/issues.json")).json();
     try { WEEKLY = await (await fetch("data/weekly.json")).json(); } catch { WEEKLY = { weeks: [] }; }
+    const me = new URLSearchParams(location.search).get("me");
+    if (me) store.set("air.key", me); // この端末を「本人の端末」として覚える（URL からはすぐ消える）
     parseState();
     history.replaceState({ hasItem: !!state.item }, "", buildQuery(state));
     render();
@@ -144,7 +180,7 @@ function nameIds(text, issue) {
 function issueMosaic(issue) {
   let h = "";
   issue.deep.forEach((d, i) => {
-    h += `<button class="tile t-deep ${DEEP_C[i % 3]}" data-item="${esc(d.id)}" onclick="openItem('${esc(issue.date)}','${esc(d.id)}',this)">
+    h += `<button class="tile t-deep ${DEEP_C[i % 3]}${readCls(issue.date, d.id)}" data-item="${esc(d.id)}" onclick="openItem('${esc(issue.date)}','${esc(d.id)}',this)">
       <span class="art">${artFor(issue, d)}</span>
       <span class="body">
         <span class="tag">${esc(d.genre)} · ${esc(d.source)}</span>
@@ -155,23 +191,23 @@ function issueMosaic(issue) {
   });
   if (issue.log.length) h += `<div class="tile t-sec"><span class="s">短信</span><span class="r"></span></div>`;
   issue.log.forEach((l, i) => {
-    h += `<button class="tile t-log" data-item="${esc(l.id)}" onclick="openItem('${esc(issue.date)}','${esc(l.id)}',this)">
+    h += `<button class="tile t-log${readCls(issue.date, l.id)}" data-item="${esc(l.id)}" onclick="openItem('${esc(issue.date)}','${esc(l.id)}',this)">
       <span class="mark ${DEEP_C[i % 3]}">${motifOf(l.genre)}</span>
       <span class="body">
-        <span class="tag">${esc(l.genre)} · ${esc(l.source)}</span>
+        <span class="tag">${l.wild ? `<b class="wild">圏外</b>` : ""}${esc(l.genre)} · ${esc(l.source)}</span>
         <h3>${esc(l.titleJa || l.title)}</h3>
       </span>
     </button>`;
   });
   const vids = issue.videos || [];
   if (vids.length) {
-    h += `<div class="tile t-sec"><span class="s">映像</span><span class="r"></span><span class="n">字幕全文を読んで要約</span></div>`;
+    h += `<div class="tile t-sec"><span class="s">映像</span><span class="r"></span><span class="n">字幕全文を読んで書いた読み物</span></div>`;
     vids.forEach((v) => {
-      h += `<button class="tile t-video" data-item="${esc(v.id)}" onclick="openItem('${esc(issue.date)}','${esc(v.id)}',this)">
-        <span class="vthumb"><img src="https://i.ytimg.com/vi/${esc(v.videoId)}/hqdefault.jpg" alt="" loading="lazy" onerror="this.remove()">${PLAY}</span>
+      h += `<button class="tile t-video${readCls(issue.date, v.id)}" data-item="${esc(v.id)}" onclick="openItem('${esc(issue.date)}','${esc(v.id)}',this)">
+        <span class="vthumb"><img src="https://i.ytimg.com/vi/${esc(v.videoId)}/hqdefault.jpg" alt="" loading="lazy" onerror="this.remove()"></span>
         <span class="body">
+          <span class="tag">${esc(v.genre)} · ${esc(v.channel)}</span>
           <h3>${esc(v.titleJa || v.title)}</h3>
-          <span class="vm">${esc(v.channel)} · ${fmtViews(v.views)}</span>
         </span>
       </button>`;
     });
@@ -216,12 +252,17 @@ function exploreBody() {
     h += `<button class="tile t-issue-row" onclick="navigate({view:'issue',date:'${esc(i.date)}',item:null})">
       <span class="no">第${i.no}号 · ${esc(i.date)}</span>
       <h3>${esc(i.headline)}</h3>
-      <span class="cnt">深掘り${i.deep.length} · 短信${i.log.length} · 映像${(i.videos || []).length}</span>
+      <span class="cnt">深掘り${i.deep.length} · 短信${i.log.length} · 映像${(i.videos || []).length}${readCount(i)}</span>
     </button>`;
   }
   return h || `<div class="tile t-empty">まだ号がありません。</div>`;
 }
 window.navigate = navigate;
+function readCount(i) {
+  const all = [...i.deep, ...i.log, ...(i.videos || [])];
+  const n = all.filter((x) => readOf(i.date, x.id).e).length;
+  return n ? ` · <b class="rc">読んだ ${n}/${all.length}</b>` : "";
+}
 
 function allVideos() {
   const all = [];
@@ -239,7 +280,7 @@ function allVideos() {
       <span class="vbody">
         <h3>${esc(v.titleJa || v.title)}</h3>
         <span class="vm">${esc(v.channel)} · ${fmtViews(v.views)} · ${esc(v.publishedAt || "")}</span>
-        <span class="note">${esc(v.summary || v.note || "")}</span>
+        <span class="note">${esc(plain(v.summary || v.note || ""))}</span>
       </span>
     </button>`;
   }
@@ -248,7 +289,7 @@ function allVideos() {
 
 function searchAll(q) {
   const needle = q.toLowerCase();
-  const hit = (...fields) => fields.some((f) => (f || "").toLowerCase().includes(needle));
+  const hit = (...fields) => fields.some((f) => plain(f).toLowerCase().includes(needle));
   const out = [];
   for (const issue of DATA.issues) {
     for (const d of issue.deep) if (hit(d.title, d.titleJa, d.summary, d.why, d.apply, d.genre, d.source))
@@ -358,27 +399,23 @@ let returnFocusEl = null;
 
 function sheetHtml(found) {
   const { issue, item, type, color } = found;
+  const on = issue.date >= MARKS_FROM;
   const tagLine = type === "deep" ? `深掘り · ${esc(item.genre)} · ${esc(item.source)}`
     : type === "log" ? `短信 · ${esc(item.genre)} · ${esc(item.source)}`
     : `映像 · ${esc(item.genre)} · ${esc(item.channel)}`;
   let body = "";
   if (type === "deep") body += `<div class="sheet-art ${color}">${artFor(issue, item)}</div>`;
+  // 映像は「読む動画」（2026-11-23）: 本文が主役。サムネは小さく添え、根拠は末尾に置く
   if (type === "video") {
-    body += `<img class="bigthumb" src="https://i.ytimg.com/vi/${esc(item.videoId)}/hqdefault.jpg" alt="" onerror="this.remove()">
-      <div class="vmeta">${esc(item.channel)} · ${fmtViews(item.views)}（収集時点） · 公開 ${esc(item.publishedAt || "")}</div>`;
-    if (item.basis) body += `<div class="basis">${esc(item.basis)}</div>`;
+    body += `<div class="vsrc"><img src="https://i.ytimg.com/vi/${esc(item.videoId)}/hqdefault.jpg" alt="" onerror="this.remove()">
+      <span>${esc(item.channel)}<br>${fmtViews(item.views)}（収集時点） · 公開 ${esc(item.publishedAt || "")}</span></div>`;
   }
   if (item.titleJa && item.title) body += `<p class="orig">${esc(item.title)}</p>`;
-  if (type === "deep") {
-    body += `<p>${esc(item.summary)}</p>`;
-    if (item.why) body += `<span class="lb">なぜ面白いか</span><p>${esc(item.why)}</p>`;
-  } else if (type === "video") {
-    body += `<span class="lb">要約（見なくても分かる版）</span><p>${esc(item.summary || item.note || "")}</p>`;
-  } else {
-    body += `<p>${esc(item.note)}</p>`;
-  }
-  if (item.apply) body += `<span class="lb">うちへの適用（仮説）</span><div class="apply ${color}">${esc(item.apply)}</div>`;
-  body += `<a class="src-link" href="${esc(item.url)}" target="_blank" rel="noopener">${type === "video" ? "YouTubeで観る" : "元記事を読む"} ↗</a>`;
+  body += `<div class="prose">${rich(type === "log" ? item.note : (item.summary || item.note), on)}</div>`;
+  if (type === "deep" && item.why) body += `<span class="lb">なぜ面白いか</span><div class="prose">${rich(item.why, on)}</div>`;
+  if (item.apply) body += `<span class="lb">うちへの適用（仮説）</span><div class="apply ${color}">${inlineMarks(item.apply, on)}</div>`;
+  if (type === "video" && item.basis) body += `<div class="basis">${esc(item.basis)}</div>`;
+  body += `<a class="src-link" href="${esc(item.url)}" target="_blank" rel="noopener" onclick="trackSrc()">${type === "video" ? "YouTubeで観る" : "元記事を読む"} ↗</a><i class="end-mark"></i>`;
   return `<div class="sheet-inner">
     <div class="sheet-head ${color}">
       <div class="hwrap">
@@ -386,7 +423,7 @@ function sheetHtml(found) {
         <button class="close" onclick="requestCloseSheet()" aria-label="閉じる">×</button>
       </div>
     </div>
-    <div class="sheet-body"><div class="bwrap">${body}</div></div>
+    <div class="sheet-body"><div class="bwrap ${color}">${body}</div></div>
   </div>`;
 }
 
@@ -412,6 +449,7 @@ function showSheet(found, key) {
   pendingOrigin = null;
   sh.setAttribute("aria-label", found.item.titleJa || found.item.title || "記事");
   sh.innerHTML = sheetHtml(found);
+  watchRead(found, key, sh);
   ov.hidden = false;
   document.body.style.overflow = "hidden";
 
@@ -438,6 +476,23 @@ function showSheet(found, key) {
     finish();
   }
 }
+
+// 「読んだ」= 本文の末尾が画面に入り、開いてから4秒以上たっている（開いてすぐ閉じたものは数えない）
+let currentFound = null, endObserver = null;
+function watchRead(found, key, sh) {
+  currentFound = found;
+  track("o", found);
+  endObserver?.disconnect();
+  const mark = sh.querySelector(".end-mark"), opened = Date.now();
+  if (!mark || !("IntersectionObserver" in window)) return;
+  endObserver = new IntersectionObserver((es) => {
+    if (!es.some((e) => e.isIntersecting)) return;
+    endObserver.disconnect();
+    setTimeout(() => { if (openedKey === key) track("e", found); }, Math.max(0, 4000 - (Date.now() - opened)));
+  }, { root: sh.querySelector(".sheet-body") });
+  endObserver.observe(mark);
+}
+window.trackSrc = () => track("s", currentFound);
 
 function animateClose() {
   const ov = $("#overlay"), sh = $("#sheet");
