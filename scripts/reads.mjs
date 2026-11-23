@@ -18,7 +18,9 @@ try {
   const res = await fetch(`${conf.url}?key=${encodeURIComponent(conf.key)}&days=60`, { signal: AbortSignal.timeout(30000) });
   const j = await res.json();
   if (!j.ok) throw new Error("合言葉が合わない");
-  rows = j.rows || [];
+  // シートが日付の列を日付型に変えるので、受け皿は "Mon Nov 23 2026 00:00:00 GMT+0900 …" の形で返してくる（2026-11-23 実測）。日本時間の YYYY-MM-DD に直す
+  const ymd = (s) => /^\d{4}-\d{2}-\d{2}$/.test(s) ? s : new Date(new Date(s).getTime() + 9 * 3600000).toISOString().slice(0, 10);
+  rows = (j.rows || []).map((r) => ({ ...r, date: ymd(r.date) }));
 } catch (e) { finish(`読んだ記録を取れなかった（${e.message}）。使わずに進める。`); }
 
 const issues = JSON.parse(readFileSync("data/issues.json", "utf8")).issues;

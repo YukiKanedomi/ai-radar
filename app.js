@@ -22,7 +22,7 @@ const plain = (text) => String(text || "").replace(/^## /gm, "").replace(/\*\*|=
 
 /* ══ 読んだ記録（2026-11-23）: 開いた(o)・末尾まで読んだ(e)・元記事を開いた(s) を端末に残す。
    合言葉（?me=… を一度開いた端末だけが持つ）と READS_URL の両方があるときだけ、集計の受け皿へも送る ══ */
-const READS_URL = ""; // Google Apps Script の受け皿の URL（scripts/reads-receiver.gs を公開して入れる）
+const READS_URL = "https://script.google.com/macros/s/AKfycbxR719C68K6TqHSqUMrcw6qRJK14wHI4N_kVwlmLKDk-NVEB-datT_w-lbPU4aDrWFp/exec"; // Google Apps Script の受け皿の URL（scripts/reads-receiver.gs を公開して入れる）
 const SHOT = location.search.includes("shot=1");
 const store = {
   get(k) { try { return localStorage.getItem(k); } catch { return null; } },
