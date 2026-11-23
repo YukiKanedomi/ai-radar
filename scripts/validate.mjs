@@ -51,7 +51,8 @@ issues.forEach((i, idx) => {
       for (const f of ["summary", "note", "why", "apply"]) {
         const p = i.date >= "2026-11-23" && markProblem(it[f]); if (p) (idx === 0 ? err : warn)(`${t}: ${f} の印 — ${p}`);
       }
-      for (const f of ["titleJa", "basis"]) if (/\*\*|==|^## /m.test(it[f] || "")) (idx === 0 ? err : warn)(`${t}: ${f} に本文の印（** == ##）は使えない`);
+      if (kind === "deep" && idx === 0 && it.why && !it.whyHead) err(`${t}: whyHead（編集部の読みの小見出し）が無い`);
+      for (const f of ["titleJa", "basis", "whyHead"]) if (/\*\*|==|^## /m.test(it[f] || "")) (idx === 0 ? err : warn)(`${t}: ${f} に本文の印（** == ##）は使えない`);
       if (it.wild !== undefined && (kind !== "log" || it.wild !== true)) err(`${t}: wild（圏外枠）は受信ログに true でだけ付ける`);
       if (it.art !== undefined) {
         if (kind !== "deep") err(`${t}: art は深掘りにだけ付ける`);

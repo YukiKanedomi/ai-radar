@@ -412,8 +412,12 @@ function sheetHtml(found) {
   }
   if (item.titleJa && item.title) body += `<p class="orig">${esc(item.title)}</p>`;
   body += `<div class="prose">${rich(type === "log" ? item.note : (item.summary || item.note), on)}</div>`;
-  if (type === "deep" && item.why) body += `<span class="lb">なぜ面白いか</span><div class="prose">${rich(item.why, on)}</div>`;
-  if (item.apply) body += `<span class="lb">うちへの適用（仮説）</span><div class="apply ${color}">${inlineMarks(item.apply, on)}</div>`;
+  // 編集部の読み（why）は、記事の最後の一節として続けて出す（2026-11-23: 「なぜ面白いか」「仮説」の札は面白くない、と本人）。
+  // whyHead（その一節の小見出し）がある号は札なしで本文に続け、無い古い号は「読みどころ」の札を付ける
+  if (type === "deep" && item.why) body += item.whyHead
+    ? `<div class="prose tail"><h4>${esc(item.whyHead)}</h4>${rich(item.why, on)}</div>`
+    : `<span class="lb">読みどころ</span><div class="prose">${rich(item.why, on)}</div>`;
+  if (item.apply) body += `<span class="lb">うちでやるなら</span><div class="apply ${color}">${inlineMarks(item.apply, on)}</div>`;
   if (type === "video" && item.basis) body += `<div class="basis">${esc(item.basis)}</div>`;
   body += `<a class="src-link" href="${esc(item.url)}" target="_blank" rel="noopener" onclick="trackSrc()">${type === "video" ? "YouTubeで観る" : "元記事を読む"} ↗</a><i class="end-mark"></i>`;
   return `<div class="sheet-inner">

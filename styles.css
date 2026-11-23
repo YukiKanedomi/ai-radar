@@ -307,3 +307,4 @@ footer{margin-top:24px;font-size:var(--fs-meta);color:var(--sub);text-align:cent
 .sheet-head .hwrap > div{padding-right:52px;}
 .sheet-head .close{position:fixed;z-index:5;top:calc(12px + env(safe-area-inset-top));right:12px;
   background:rgba(34,36,42,.82);color:#fff;box-shadow:0 0 0 2px rgba(255,255,255,.55);}
+.prose.tail h4{margin-top:32px;}
