@@ -57,6 +57,28 @@ function flushReads() {
   if (changed) store.set("air.sent", JSON.stringify(sent));
 }
 
+/* ══ ひとこと（2026-11-24・本人「フリーコメントで残せるフィードバックを」）: 記事の末尾と号の末尾に出す自由記述の欄。
+   出すのは登録した端末だけ（公開ページなので、ほかの人には欄そのものを出さない）。送り先は読んだ記録と同じ受け皿。
+   毎朝のジョブが scripts/reads.mjs 経由で読む。id が空なら号全体へのひとこと ══ */
+function commentBox(date, id, label) {
+  if (SHOT || !READS_URL || !store.get("air.key")) return "";
+  return `<div class="cbox"><label>${label}<textarea rows="3" maxlength="1000" placeholder="良かった、もういい、こういうのが読みたい、など何でも"></textarea></label>
+    <div class="crow"><button type="button" onclick="postComment(this,'${date}','${id}')">送る</button><span class="cmsg" role="status"></span></div></div>`;
+}
+window.postComment = async (btn, date, id) => {
+  const box = btn.closest(".cbox"), ta = box.querySelector("textarea"), msg = box.querySelector(".cmsg");
+  const text = ta.value.trim();
+  if (!text) return;
+  btn.disabled = true; msg.textContent = "送っています…";
+  let ok = false;
+  try { // 文字列の body は text/plain で届く（事前確認の通信なしで受け皿まで行く）
+    ok = (await (await fetch(READS_URL, { method: "POST", body: JSON.stringify({ key: store.get("air.key"), k: "c", date, id, text }) })).json()).ok === true;
+  } catch {}
+  btn.disabled = false;
+  if (ok) ta.value = "";
+  msg.textContent = ok ? "送りました。明朝の選定から読みます。" : "送れませんでした。文はそのまま残してあります。";
+};
+
 /* ══ 状態とルーター ══ */
 const VIEWS = ["today", "explore", "review", "issue"];
 let state = { view: "today", date: null, item: null, period: null, q: "", vf: "issues" };
@@ -242,7 +264,7 @@ function issueMosaic(issue) {
     h += `<div class="tile t-after"><span class="tag">後記</span><p>${nameIds(after, issue)}</p></div>`;
   }
   if (issue.intro) h += `<details class="tile t-memo"><summary>この号の受信メモ</summary><p>${nameIds(issue.intro, issue)}</p></details>`;
-  h += `<div class="tile t-strip"><span class="s">感想はチャットで伝えると選定眼が育つ</span></div>`;
+  h += commentBox(issue.date, "", "この号へのひとこと") || `<div class="tile t-strip"><span class="s">感想はチャットで伝えると選定眼が育つ</span></div>`;
   return h;
 }
 window.openItem = (date, id, el) => {
@@ -445,6 +467,7 @@ function sheetHtml(found) {
   if (item.apply) body += `<span class="lb">うちでやるなら</span><div class="apply ${color}">${inlineMarks(item.apply, on)}</div>`;
   if (type === "video" && item.basis) body += `<div class="basis">${esc(item.basis)}</div>`;
   body += `<a class="src-link" href="${esc(item.url)}" target="_blank" rel="noopener" onclick="trackSrc()">${type === "video" ? "YouTubeで観る" : "元記事を読む"} ↗</a><i class="end-mark"></i>`;
+  body += commentBox(issue.date, item.id, "この記事へのひとこと");
   return `<div class="sheet-inner">
     <div class="sheet-head ${color}">
       <div class="hwrap">

@@ -7,7 +7,8 @@ import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 
 const OUT = "scripts/out/reads-summary.txt";
 const CONF = process.env.AIR_READS_CONF || "C:/Users/kanedomi/.claude-jobs/air-reads.json";
-const finish = (text) => { mkdirSync("scripts/out", { recursive: true }); writeFileSync(OUT, text + "\n"); console.log(text.split("\n")[0]); process.exit(0); };
+let tail = ""; // 本人のひとこと。記録が少なくて集計を出さない日も、これは出す
+const finish = (text) => { mkdirSync("scripts/out", { recursive: true }); writeFileSync(OUT, text + tail + "\n"); console.log(text.split("\n")[0] + (tail ? "（ひとこと有り）" : "")); process.exit(0); };
 
 let conf;
 try { conf = JSON.parse(readFileSync(CONF, "utf8")); } catch { finish("受け皿が未設定（" + CONF + " が無い）。読んだ記録は使わずに進める。"); }
@@ -21,6 +22,15 @@ try {
   // シートが日付の列を日付型に変えるので、受け皿は "Mon Nov 23 2026 00:00:00 GMT+0900 …" の形で返してくる（2026-11-23 実測）。日本時間の YYYY-MM-DD に直す
   const ymd = (s) => /^\d{4}-\d{2}-\d{2}$/.test(s) ? s : new Date(new Date(s).getTime() + 9 * 3600000).toISOString().slice(0, 10);
   rows = (j.rows || []).map((r) => ({ ...r, date: ymd(r.date) }));
+  // ひとこと（2026-11-24）: 本人がアプリの記事末尾・号の末尾から書いた自由記述。直近30日分を新しい順に
+  const all = JSON.parse(readFileSync("data/issues.json", "utf8")).issues;
+  const since = Date.now() - 30 * 86400000;
+  const cm = (j.comments || []).filter((c) => new Date(c.at).getTime() >= since).sort((a, b) => (a.at < b.at ? 1 : -1)).map((c) => {
+    const i = all.find((x) => x.date === c.date), x = i && [...i.deep, ...i.log, ...(i.videos || [])].find((y) => y.id === c.id);
+    const about = x ? `${c.date} ${c.id}「${x.titleJa || x.title}」［${x.genre}］` : `${c.date} の号全体`;
+    return `- ${new Date(new Date(c.at).getTime() + 9 * 3600000).toISOString().slice(0, 10)} に書いた / ${about}\n  ${String(c.text).replace(/\s*\n\s*/g, " / ")}`;
+  });
+  if (cm.length) tail = `\n\n## 本人のひとこと（直近30日・新しい順。本人が書いた言葉そのまま）\n${cm.join("\n")}`;
 } catch (e) { finish(`読んだ記録を取れなかった（${e.message}）。使わずに進める。`); }
 
 const issues = JSON.parse(readFileSync("data/issues.json", "utf8")).issues;
