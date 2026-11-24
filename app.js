@@ -36,12 +36,25 @@ function track(kind, found) {
   if (SHOT || !found) return;
   const key = `${found.issue.date}/${found.item.id}`;
   const r = READ[key] || (READ[key] = {});
-  const first = !r[kind];
-  if (first) { r[kind] = Date.now(); store.set("air.read", JSON.stringify(READ)); }
+  if (!r[kind]) { r[kind] = Date.now(); store.set("air.read", JSON.stringify(READ)); }
+  flushReads();
+}
+// 端末に残っていてまだ送っていない記録を受け皿へ送る（起動時と記録のたび）。
+// 2026-11-24: 受け皿をつなぐ前・合言葉を登録する前に読んだ分が、端末に残ったまま送られなかった。送った印は air.sent に別に持つ
+function flushReads() {
   const me = store.get("air.key");
-  if (!first || !READS_URL || !me || !navigator.sendBeacon) return;
-  navigator.sendBeacon(READS_URL, JSON.stringify({ key: me, k: kind, date: found.issue.date, no: found.issue.no,
-    id: found.item.id, type: found.type, genre: found.item.genre || "", wild: !!found.item.wild }));
+  if (SHOT || !READS_URL || !me || !navigator.sendBeacon) return;
+  let sent = {};
+  try { sent = JSON.parse(store.get("air.sent") || "{}") || {}; } catch {}
+  let changed = false;
+  for (const [key, r] of Object.entries(READ)) for (const kind of ["o", "e", "s"]) {
+    if (!r[kind] || (sent[key] || "").includes(kind)) continue;
+    const [date, id] = key.split("/"), found = findItem(date, id);
+    if (found && !navigator.sendBeacon(READS_URL, JSON.stringify({ key: me, k: kind, date, no: found.issue.no,
+      id, type: found.type, genre: found.item.genre || "", wild: !!found.item.wild }))) continue; // 送れなかった分は次の機会に
+    sent[key] = (sent[key] || "") + kind; changed = true;
+  }
+  if (changed) store.set("air.sent", JSON.stringify(sent));
 }
 
 /* ══ 状態とルーター ══ */
@@ -93,6 +106,7 @@ async function boot() {
     try { WEEKLY = await (await fetch("data/weekly.json")).json(); } catch { WEEKLY = { weeks: [] }; }
     const me = new URLSearchParams(location.search).get("me");
     if (me) store.set("air.key", me); // この端末を「本人の端末」として覚える（URL からはすぐ消える）
+    flushReads();
     parseState();
     history.replaceState({ hasItem: !!state.item }, "", buildQuery(state));
     render();
