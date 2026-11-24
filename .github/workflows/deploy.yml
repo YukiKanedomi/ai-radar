@@ -26,5 +26,7 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
         with:
           path: "."
+      # 2026-11-24: deploy-pages が直後に "Found 0 artifact(s)" で落ちることが続いた（上げた物が一覧に出る前に探しに行く）。少し待つ
+      - run: sleep 15
       - id: deployment
         uses: actions/deploy-pages@v4
