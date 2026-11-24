@@ -3,7 +3,7 @@
 # which collects candidates via scripts/collect.mjs, writes a new issue into
 # data/issues.json and git pushes (GitHub Pages auto-deploys).
 # Exit codes: 0 ok / 2 auth failure (no retry) / 3 claude failed / 4 no issue for today /
-#             9 launcher error. Non-zero -> one line appended to bridge\knowledge\job-alerts.md.
+#             5 issue written but not live on the public site (deploy re-run twice) / 9 launcher error. Non-zero -> one line appended to bridge\knowledge\job-alerts.md.
 #             Failures other than auth are retried once after 10 min inside this script.
 # Stop:  Unregister-ScheduledTask -TaskName 'AIRadarDaily' -Confirm:$false
 # NOTE: keep THIS file ASCII-only (PS 5.1 misreads BOM-less UTF-8 with Japanese).
@@ -50,6 +50,27 @@ function Test-TodayIssue($day) {
   $json = Get-Content -Raw -Encoding UTF8 (Join-Path $repo 'data\issues.json')
   return ($json -match ('"currentIssue"\s*:\s*"' + $day + '"'))
 }
+function Confirm-Published($day, $rounds = 3, $polls = 8) {
+  # 2026-11-24: issue 123 was pushed but the Pages deploy failed on GitHub's side ("Deployment failed,
+  #   try again later"), so the site kept showing yesterday's issue and nobody noticed until the afternoon.
+  # Poll the public data (30s x $polls per round). Between rounds, start the deploy workflow again.
+  for ($round = 1; $round -le $rounds; $round++) {
+    for ($i = 1; $i -le $polls; $i++) {
+      try {
+        $live = (Invoke-WebRequest -UseBasicParsing -TimeoutSec 20 -Uri "https://yukikanedomi.github.io/ai-radar/data/issues.json?t=$(Get-Random)").Content
+        if ($live -match ('"currentIssue"\s*:\s*"' + $day + '"')) { Log "published: live site shows $day (round $round)"; return $true }
+      } catch { Log "publish check: $($_.Exception.Message -replace '\s+', ' ')" }
+      Start-Sleep -Seconds 30
+    }
+    if ($round -lt $rounds) {
+      Log "not live after round $round -> gh workflow run deploy.yml"
+      $ErrorActionPreference = 'Continue'
+      try { (& gh workflow run deploy.yml --ref main 2>&1 | Out-String).Trim() | Out-File -FilePath $log -Append -Encoding utf8 } catch { Log "gh failed: $($_.Exception.Message)" }
+      $ErrorActionPreference = 'Stop'
+    }
+  }
+  return $false
+}
 
 # 2026-10-15: the prompt goes in via stdin. PS 5.1 splits a native argument at a space inside
 #   embedded double quotes, which silently cut the prompt mid-instruction (ai-radar 10/12, weekend 10/02).
@@ -80,6 +101,9 @@ try {
       $exitCode = 0; break
     }
     if ($attempt -eq 1) { Log "FAILED: $reason -> retry in 10 min"; Start-Sleep -Seconds 600 }
+  }
+  if ($exitCode -eq 0 -and -not (Confirm-Published $today)) {
+    $exitCode = 5; $reason = "issue $today is written but the public site does not show it (push or Pages deploy failed; see gh run list)"
   }
 } catch {
   $exitCode = 9; $reason = "launcher error: $($_.Exception.Message -replace '\s+', ' ')"
