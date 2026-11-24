@@ -164,7 +164,18 @@ function render() {
     m.innerHTML = exploreView();
     const inp = $("#search-in");
     if (inp) {
+      // ホーム画面のアイコンから開く画面は Safari と記憶が別で、?me= の URL を開けない（2026-11-24）。
+      // 検索欄に「me:合言葉」を入れて確定すると、この端末を登録する。合言葉は検索語にも URL にも残さない
+      inp.addEventListener("change", () => {
+        const k = /^me:(\S{8,})$/.exec(inp.value.trim());
+        if (!k) return;
+        if (store.get("air.key") !== k[1]) store.set("air.sent", "{}"); // 合言葉を入れ直したら、送り直す
+        store.set("air.key", k[1]); inp.value = ""; state.q = "";
+        $("#explore-body").innerHTML = `<div class="tile t-state"><p>この端末を登録しました。読んだ記録を送ります。</p></div>`;
+        flushReads();
+      });
       inp.addEventListener("input", () => {
+        if (inp.value.trim().startsWith("me:")) return;
         state.q = inp.value.trim();
         history.replaceState({ hasItem: false }, "", buildQuery(state));
         $("#explore-body").innerHTML = exploreBody();
